@@ -4,9 +4,11 @@
 
 ## 文件位置
 
-- 用户主目录：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
-- 当前工作目录：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
-- 工作区目录：`{workspace}/.qclrc`
+CoCli 会按以下优先级查找配置文件（找到第一个存在的文件即使用）：
+
+1. **当前工作目录**：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
+2. **用户主目录**：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
+3. **工作区目录**：`{workspace}/.qclrc`（如果设置了当前工作区）
 
 ## 配置格式
 

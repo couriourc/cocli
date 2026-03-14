@@ -97,7 +97,32 @@ vue2:
 
 ## 创建自定义模板
 
-### 1. 准备模板文件
+有两种方式创建自定义模板：使用命令快速创建，或手动创建。
+
+### 方式一：使用命令创建（推荐）
+
+使用 `cocli template create` 命令可以快速创建模板：
+
+```bash
+# 在仓库目录中创建模板
+cd /path/to/my-templates
+cocli template create vue3
+
+# 指定模板路径
+cocli template create react --path packages/react
+
+# 指定仓库目录
+cocli template create my-template --repo-dir /path/to/repo
+```
+
+命令会自动：
+1. 创建模板目录结构
+2. 生成 README.md 文件
+3. 更新或创建 `meta.yaml` 文件
+
+### 方式二：手动创建
+
+#### 1. 准备模板文件
 
 创建模板目录结构：
 
@@ -111,7 +136,7 @@ my-templates/
           └── ...
 ```
 
-### 2. 定义 meta.yaml
+#### 2. 定义 meta.yaml
 
 ```yaml
 templates:
@@ -119,7 +144,7 @@ templates:
     root: packages/vue3/**
 ```
 
-### 3. 配置仓库
+#### 3. 配置仓库
 
 在 `.qclrc` 中添加仓库配置：
 
@@ -130,7 +155,7 @@ repos:
       url: /path/to/my-templates
 ```
 
-### 4. 使用模板
+#### 4. 使用模板
 
 ```bash
 cocli app create --template=vue3 my-app
@@ -153,6 +178,7 @@ templates:
 ## 相关命令
 
 - `cocli template list` - 列出可用模板
+- `cocli template create` - 创建新模板
 - `cocli app create` - 使用模板创建项目
 
 ## 最佳实践

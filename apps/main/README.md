@@ -74,10 +74,10 @@ cargo build --release
 
 ## 配置文件
 
-配置文件支持以下位置（按优先级排序）：
+配置文件支持以下位置（按查找顺序，找到第一个存在的文件即使用）：
 
-1. 当前工作目录：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
-2. 用户主目录：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
+1. **当前工作目录**：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
+2. **用户主目录**：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
 
 ### 配置格式
 

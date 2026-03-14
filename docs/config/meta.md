@@ -185,16 +185,50 @@ addons:
     root: ./addons/vue3-funs/**
 ```
 
+## 快速创建模板和插件
+
+CoCli 提供了便捷的命令来创建模板和插件，无需手动编辑 `meta.yaml`：
+
+### 创建模板
+
+```bash
+# 在仓库目录中创建模板
+cd /path/to/repo
+cocli template create vue3
+
+# 指定模板路径
+cocli template create react --path packages/react
+```
+
+### 创建插件
+
+```bash
+# 在仓库目录中创建插件
+cd /path/to/repo
+cocli addons create my-plugin
+
+# 指定插件路径
+cocli addons create vue3-utils --path addons/vue3-utils
+```
+
+这些命令会自动：
+- 创建模板/插件目录结构
+- 生成 README.md 文件
+- 更新或创建 `meta.yaml` 文件
+
 ## 最佳实践
 
 1. **使用 Glob 模式** - 使用 `**` 匹配整个目录树
 2. **添加 README.md** - 为每个插件添加说明文档
 3. **清晰的目录结构** - 保持模板和插件的目录结构清晰
 4. **语义化命名** - 使用有意义的模板和插件名称
+5. **使用创建命令** - 使用 `cocli template create` 和 `cocli addons create` 快速创建
 
 ## 相关文档
 
 - [仓库配置](./repos)
 - [模板管理](/guide/template)
 - [插件管理](/guide/addons)
+- [模板命令参考](/commands/template)
+- [插件命令参考](/commands/addons)
 

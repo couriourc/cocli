@@ -139,6 +139,9 @@ cocli app list
 ```bash
 # 列出所有可用模板
 cocli template list
+
+# 创建新模板
+cocli template create <name> [--path=<path>] [--repo-dir=<dir>]
 ```
 
 ### 插件管理
@@ -149,6 +152,9 @@ cocli addons list [--source=<source>]
 
 # 查看插件详情
 cocli addons detail <name>
+
+# 创建新插件
+cocli addons create <name> [--path=<path>] [--repo-dir=<dir>]
 
 # 添加插件到项目
 cocli addons add <name> <path>

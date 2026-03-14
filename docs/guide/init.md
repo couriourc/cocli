@@ -52,10 +52,10 @@ cocli init -f /path/to/config.yaml
 
 ## 配置文件位置
 
-CoCli 会按以下优先级查找配置文件：
+CoCli 会按以下顺序查找配置文件（找到第一个存在的文件即使用）：
 
-1. 当前工作目录：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
-2. 用户主目录：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
+1. **当前工作目录**：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
+2. **用户主目录**：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
 
 ## 配置示例
 

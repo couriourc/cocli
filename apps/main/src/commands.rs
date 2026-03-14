@@ -122,6 +122,8 @@ pub struct ConfigSetArgs {
 pub enum TemplateCommands {
     /// 列出可用的模板
     List,
+    /// 创建新模板
+    Create(TemplateCreateArgs),
 }
 
 #[derive(Subcommand)]
@@ -134,6 +136,8 @@ pub enum AddonsCommands {
     Add(AddonsAddArgs),
     /// 同步项目中的 addons（根据 .qclocal 配置）
     Sync(AddonsSyncArgs),
+    /// 创建新插件
+    Create(AddonsCreateArgs),
 }
 
 #[derive(Args)]
@@ -166,6 +170,36 @@ pub struct AddonsSyncArgs {
     /// 项目目录（可选，默认为当前目录）
     #[arg(value_name = "PROJECT_DIR", default_value = ".")]
     pub project_dir: String,
+}
+
+#[derive(Args)]
+pub struct TemplateCreateArgs {
+    /// 模板名称
+    #[arg(value_name = "TEMPLATE_NAME")]
+    pub name: String,
+    
+    /// 模板路径（可选，默认为 templates/<name>）
+    #[arg(long, short = 'p', value_name = "PATH")]
+    pub path: Option<String>,
+    
+    /// 仓库目录（可选，默认为当前目录）
+    #[arg(long, short = 'r', value_name = "REPO_DIR", default_value = ".")]
+    pub repo_dir: String,
+}
+
+#[derive(Args)]
+pub struct AddonsCreateArgs {
+    /// 插件名称
+    #[arg(value_name = "ADDON_NAME")]
+    pub name: String,
+    
+    /// 插件路径（可选，默认为 addons/<name>）
+    #[arg(long, short = 'p', value_name = "PATH")]
+    pub path: Option<String>,
+    
+    /// 仓库目录（可选，默认为当前目录）
+    #[arg(long, short = 'r', value_name = "REPO_DIR", default_value = ".")]
+    pub repo_dir: String,
 }
 
 #[derive(Args)]
@@ -1168,6 +1202,190 @@ pub async fn handle_skills_delete(args: SkillsDeleteArgs) -> anyhow::Result<()> 
     let manager = SkillsManager::new(None)?;
     manager.delete_skill(&args.skill_name)?;
     println!("✅ Skill '{}' 已删除", args.skill_name);
+    
+    Ok(())
+}
+
+pub async fn handle_template_create(args: TemplateCreateArgs) -> anyhow::Result<()> {
+    use crate::config::Meta;
+    use std::path::PathBuf;
+    use std::collections::HashMap;
+    use anyhow::Context;
+    
+    // 解析仓库目录
+    let repo_dir = if args.repo_dir == "." || args.repo_dir == "./" {
+        std::env::current_dir()?
+    } else {
+        let path = PathBuf::from(&args.repo_dir);
+        if path.is_absolute() {
+            path
+        } else {
+            std::env::current_dir()?.join(&args.repo_dir)
+        }
+    };
+    
+    if !repo_dir.exists() {
+        anyhow::bail!("仓库目录不存在: {}", repo_dir.display());
+    }
+    
+    if !repo_dir.is_dir() {
+        anyhow::bail!("指定的路径不是目录: {}", repo_dir.display());
+    }
+    
+    // 确定模板路径
+    let template_path = if let Some(path) = args.path {
+        path
+    } else {
+        format!("templates/{}", args.name)
+    };
+    
+    // 创建模板目录
+    let template_dir = repo_dir.join(&template_path);
+    if template_dir.exists() {
+        anyhow::bail!("模板目录已存在: {}", template_dir.display());
+    }
+    
+    fs::create_dir_all(&template_dir)?;
+    println!("✅ 已创建模板目录: {}", template_dir.display());
+    
+    // 创建基本的 README.md
+    let readme_path = template_dir.join("README.md");
+    if !readme_path.exists() {
+        let readme_content = format!("# {}\n\n这是一个使用 CoCli 创建的模板。\n\n## 使用方法\n\n```bash\ncocli app create --template={} <项目名>\n```\n", 
+            args.name, args.name);
+        fs::write(&readme_path, readme_content)?;
+        println!("✅ 已创建 README.md");
+    }
+    
+    // 读取或创建 meta.yaml
+    let meta_path = repo_dir.join("meta.yaml");
+    let mut meta = if meta_path.exists() {
+        let content = fs::read_to_string(&meta_path)?;
+        serde_yaml::from_str::<Meta>(&content)
+            .context("解析 meta.yaml 失败")?
+    } else {
+        Meta {
+            templates: None,
+            addons: None,
+        }
+    };
+    
+    // 更新模板配置
+    let template_config = crate::config::TemplateConfig {
+        root: crate::config::TemplateRoot::Single(format!("{}/**", template_path)),
+    };
+    
+    if meta.templates.is_none() {
+        meta.templates = Some(HashMap::new());
+    }
+    
+    if let Some(ref mut templates) = meta.templates {
+        if templates.contains_key(&args.name) {
+            anyhow::bail!("模板 '{}' 已在 meta.yaml 中存在", args.name);
+        }
+        templates.insert(args.name.clone(), template_config);
+    }
+    
+    // 保存 meta.yaml
+    let yaml_content = serde_yaml::to_string(&meta)?;
+    fs::write(&meta_path, yaml_content)?;
+    println!("✅ 已更新 meta.yaml");
+    
+    println!("\n✅ 模板 '{}' 创建成功！", args.name);
+    println!("💡 提示: 模板路径: {}", template_dir.display());
+    println!("💡 提示: 使用 `cocli template list` 查看所有模板");
+    
+    Ok(())
+}
+
+pub async fn handle_addons_create(args: AddonsCreateArgs) -> anyhow::Result<()> {
+    use crate::config::Meta;
+    use std::path::PathBuf;
+    use std::collections::HashMap;
+    use anyhow::Context;
+    
+    // 解析仓库目录
+    let repo_dir = if args.repo_dir == "." || args.repo_dir == "./" {
+        std::env::current_dir()?
+    } else {
+        let path = PathBuf::from(&args.repo_dir);
+        if path.is_absolute() {
+            path
+        } else {
+            std::env::current_dir()?.join(&args.repo_dir)
+        }
+    };
+    
+    if !repo_dir.exists() {
+        anyhow::bail!("仓库目录不存在: {}", repo_dir.display());
+    }
+    
+    if !repo_dir.is_dir() {
+        anyhow::bail!("指定的路径不是目录: {}", repo_dir.display());
+    }
+    
+    // 确定插件路径
+    let addon_path = if let Some(path) = args.path {
+        path
+    } else {
+        format!("addons/{}", args.name)
+    };
+    
+    // 创建插件目录
+    let addon_dir = repo_dir.join(&addon_path);
+    if addon_dir.exists() {
+        anyhow::bail!("插件目录已存在: {}", addon_dir.display());
+    }
+    
+    fs::create_dir_all(&addon_dir)?;
+    println!("✅ 已创建插件目录: {}", addon_dir.display());
+    
+    // 创建基本的 README.md
+    let readme_path = addon_dir.join("README.md");
+    if !readme_path.exists() {
+        let readme_content = format!("# {}\n\n这是一个使用 CoCli 创建的插件。\n\n## 使用方法\n\n```bash\ncocli addons add {} [项目目录]\n```\n", 
+            args.name, args.name);
+        fs::write(&readme_path, readme_content)?;
+        println!("✅ 已创建 README.md");
+    }
+    
+    // 读取或创建 meta.yaml
+    let meta_path = repo_dir.join("meta.yaml");
+    let mut meta = if meta_path.exists() {
+        let content = fs::read_to_string(&meta_path)?;
+        serde_yaml::from_str::<Meta>(&content)
+            .context("解析 meta.yaml 失败")?
+    } else {
+        Meta {
+            templates: None,
+            addons: None,
+        }
+    };
+    
+    // 更新插件配置
+    let addon_config = crate::config::AddonConfig {
+        root: crate::config::TemplateRoot::Single(format!("{}/**", addon_path)),
+    };
+    
+    if meta.addons.is_none() {
+        meta.addons = Some(HashMap::new());
+    }
+    
+    if let Some(ref mut addons) = meta.addons {
+        if addons.contains_key(&args.name) {
+            anyhow::bail!("插件 '{}' 已在 meta.yaml 中存在", args.name);
+        }
+        addons.insert(args.name.clone(), addon_config);
+    }
+    
+    // 保存 meta.yaml
+    let yaml_content = serde_yaml::to_string(&meta)?;
+    fs::write(&meta_path, yaml_content)?;
+    println!("✅ 已更新 meta.yaml");
+    
+    println!("\n✅ 插件 '{}' 创建成功！", args.name);
+    println!("💡 提示: 插件路径: {}", addon_dir.display());
+    println!("💡 提示: 使用 `cocli addons list` 查看所有插件");
     
     Ok(())
 }

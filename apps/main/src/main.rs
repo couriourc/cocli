@@ -88,6 +88,9 @@ async fn main() -> Result<()> {
                 commands::TemplateCommands::List => {
                     commands::handle_template_list().await?;
                 }
+                commands::TemplateCommands::Create(args) => {
+                    commands::handle_template_create(args).await?;
+                }
             }
         }
         commands::Commands::Addons(cmd) => {
@@ -103,6 +106,9 @@ async fn main() -> Result<()> {
                 }
                 commands::AddonsCommands::Sync(args) => {
                     commands::handle_addons_sync(args).await?;
+                }
+                commands::AddonsCommands::Create(args) => {
+                    commands::handle_addons_create(args).await?;
                 }
             }
         }

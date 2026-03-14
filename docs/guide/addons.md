@@ -111,7 +111,32 @@ addons:
 
 ## 创建自定义插件
 
-### 1. 准备插件文件
+有两种方式创建自定义插件：使用命令快速创建，或手动创建。
+
+### 方式一：使用命令创建（推荐）
+
+使用 `cocli addons create` 命令可以快速创建插件：
+
+```bash
+# 在仓库目录中创建插件
+cd /path/to/my-addons
+cocli addons create my-plugin
+
+# 指定插件路径
+cocli addons create vue3-utils --path addons/vue3-utils
+
+# 指定仓库目录
+cocli addons create my-plugin --repo-dir /path/to/repo
+```
+
+命令会自动：
+1. 创建插件目录结构
+2. 生成 README.md 文件
+3. 更新或创建 `meta.yaml` 文件
+
+### 方式二：手动创建
+
+#### 1. 准备插件文件
 
 创建插件目录结构：
 
@@ -125,7 +150,7 @@ my-addons/
           └── ...
 ```
 
-### 2. 添加 README.md
+#### 2. 添加 README.md
 
 在插件目录中添加 `README.md` 文件，描述插件的功能和使用方法：
 
@@ -141,7 +166,7 @@ import { feature } from './my-plugin'
 \`\`\`
 ```
 
-### 3. 定义 meta.yaml
+#### 3. 定义 meta.yaml
 
 ```yaml
 addons:
@@ -149,11 +174,11 @@ addons:
     root: ./addons/my-plugin/**
 ```
 
-### 4. 配置仓库
+#### 4. 配置仓库
 
 在 `.qclrc` 中添加仓库配置。
 
-### 5. 使用插件
+#### 5. 使用插件
 
 ```bash
 cocli addons add my-plugin .
@@ -170,6 +195,7 @@ cocli addons add my-plugin .
 
 - `cocli addons list` - 列出可用插件
 - `cocli addons detail` - 查看插件详情
+- `cocli addons create` - 创建新插件
 - `cocli addons add` - 添加插件
 - `cocli addons sync` - 同步插件
 
