@@ -4,10 +4,10 @@
 
 ## 查看可用模板
 
-使用 `qcl template list` 查看所有可用模板：
+使用 `cocli template list` 查看所有可用模板：
 
 ```bash
-qcl template list
+cocli template list
 ```
 
 ### 输出示例
@@ -22,17 +22,17 @@ qcl template list
 ## 使用模板创建项目
 
 ```bash
-qcl app create --template=<模板名> <项目名>
+cocli app create --template=<模板名> <项目名>
 ```
 
 ### 示例
 
 ```bash
 # 创建 Vue 3 项目
-qcl app create --template=vue3 my-vue3-app
+cocli app create --template=vue3 my-vue3-app
 
 # 创建 React 项目
-qcl app create --template=react my-react-app
+cocli app create --template=react my-react-app
 ```
 
 ## 模板来源
@@ -133,7 +133,7 @@ repos:
 ### 4. 使用模板
 
 ```bash
-qcl app create --template=vue3 my-app
+cocli app create --template=vue3 my-app
 ```
 
 ## 模板变量（未来功能）
@@ -152,8 +152,8 @@ templates:
 
 ## 相关命令
 
-- `qcl template list` - 列出可用模板
-- `qcl app create` - 使用模板创建项目
+- `cocli template list` - 列出可用模板
+- `cocli app create` - 使用模板创建项目
 
 ## 最佳实践
 

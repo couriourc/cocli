@@ -1,19 +1,19 @@
 # 模板管理命令
 
-## qcl template list
+## cocli template list
 
 列出所有可用的模板。
 
 ### 语法
 
 ```bash
-qcl template list
+cocli template list
 ```
 
 ### 示例
 
 ```bash
-qcl template list
+cocli template list
 ```
 
 ### 输出示例

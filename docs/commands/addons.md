@@ -1,13 +1,13 @@
 # 插件管理命令
 
-## qcl addons list
+## cocli addons list
 
 列出所有可用的插件。
 
 ### 语法
 
 ```bash
-qcl addons list [-v|--verbose]
+cocli addons list [-v|--verbose]
 ```
 
 ### 参数
@@ -20,11 +20,11 @@ qcl addons list [-v|--verbose]
 
 ```bash
 # 简单列表
-qcl addons list
+cocli addons list
 
 # 详细信息
-qcl addons list -v
-qcl addons list --verbose
+cocli addons list -v
+cocli addons list --verbose
 ```
 
 ### 输出示例（简单模式）
@@ -52,14 +52,14 @@ add
     ...
 ```
 
-## qcl addons detail
+## cocli addons detail
 
 查看指定插件的完整详细信息，包括 README.md 内容。
 
 ### 语法
 
 ```bash
-qcl addons detail <插件名>
+cocli addons detail <插件名>
 ```
 
 ### 参数
@@ -72,10 +72,10 @@ qcl addons detail <插件名>
 
 ```bash
 # 查看 add 插件的详细信息
-qcl addons detail add
+cocli addons detail add
 
 # 查看 vue3-funs 插件的详细信息
-qcl addons detail vue3-funs
+cocli addons detail vue3-funs
 ```
 
 ### 输出示例
@@ -105,14 +105,14 @@ add
 - 如果插件不存在，会列出所有可用插件作为建议
 - 显示完整的 README.md 内容（不限制行数）
 
-## qcl addons add
+## cocli addons add
 
 向指定项目或当前目录添加插件。
 
 ### 语法
 
 ```bash
-qcl addons add <插件列表> [项目目录]
+cocli addons add <插件列表> [项目目录]
 ```
 
 ### 参数
@@ -126,12 +126,12 @@ qcl addons add <插件列表> [项目目录]
 
 ```bash
 # 向当前目录添加插件
-qcl addons add add .
-qcl addons add add,minus .
+cocli addons add add .
+cocli addons add add,minus .
 
 # 向指定项目目录添加插件
-qcl addons add add my-project
-qcl addons add add,minus,vue3-funs my-project
+cocli addons add add my-project
+cocli addons add add,minus,vue3-funs my-project
 ```
 
 ### 说明
@@ -140,14 +140,14 @@ qcl addons add add,minus,vue3-funs my-project
 - 如果项目目录中有 `.qclocal` 文件，会更新其中的 `addons.include` 列表
 - 如果项目目录中没有 `.qclocal` 文件，会创建一个新的
 
-## qcl addons sync
+## cocli addons sync
 
 根据 `.qclocal` 文件中的 `addons.include` 配置，同步项目中的插件。
 
 ### 语法
 
 ```bash
-qcl addons sync [项目目录]
+cocli addons sync [项目目录]
 ```
 
 ### 参数
@@ -160,10 +160,10 @@ qcl addons sync [项目目录]
 
 ```bash
 # 同步当前目录的插件
-qcl addons sync .
+cocli addons sync .
 
 # 同步指定项目的插件
-qcl addons sync my-project
+cocli addons sync my-project
 ```
 
 ### 说明

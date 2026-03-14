@@ -4,10 +4,10 @@
 
 ## 创建应用
 
-使用 `qcl app create` 命令创建新应用：
+使用 `cocli app create` 命令创建新应用：
 
 ```bash
-qcl app create --template=<模板名> <项目名>
+cocli app create --template=<模板名> <项目名>
 ```
 
 ### 参数说明
@@ -20,21 +20,21 @@ qcl app create --template=<模板名> <项目名>
 
 ```bash
 # 创建 Vue 3 项目
-qcl app create --template=vue3 my-vue-app
+cocli app create --template=vue3 my-vue-app
 
 # 创建 React 项目并添加插件
-qcl app create --template=react --addons=add,minus my-react-app
+cocli app create --template=react --addons=add,minus my-react-app
 
 # 使用短选项
-qcl app create -t vue2 -a vue2-funs my-vue2-app
+cocli app create -t vue2 -a vue2-funs my-vue2-app
 ```
 
 ## 列出应用
 
-使用 `qcl app list` 列出当前工作区（或当前目录）下的所有应用：
+使用 `cocli app list` 列出当前工作区（或当前目录）下的所有应用：
 
 ```bash
-qcl app list
+cocli app list
 ```
 
 ### 输出示例
@@ -98,7 +98,7 @@ my-app/
 ### 1. 创建应用
 
 ```bash
-qcl app create --template=vue3 my-app
+cocli app create --template=vue3 my-app
 ```
 
 ### 2. 进入应用目录
@@ -110,25 +110,25 @@ cd my-app
 ### 3. 添加插件
 
 ```bash
-qcl addons add vue3-funs .
+cocli addons add vue3-funs .
 ```
 
 ### 4. 同步插件
 
 ```bash
-qcl addons sync .
+cocli addons sync .
 ```
 
 ## 相关命令
 
-- `qcl app create` - 创建新应用
-- `qcl app list` - 列出应用
-- `qcl addons add` - 添加插件
-- `qcl addons sync` - 同步插件
+- `cocli app create` - 创建新应用
+- `cocli app list` - 列出应用
+- `cocli addons add` - 添加插件
+- `cocli addons sync` - 同步插件
 
 ## 注意事项
 
-- ⚠️ `qcl create` 命令已废弃，请使用 `qcl app create`
-- ⚠️ 应用目录必须包含 `.qclocal` 文件才能被 `qcl app list` 识别
+- ⚠️ `cocli create` 命令已废弃，请使用 `cocli app create`
+- ⚠️ 应用目录必须包含 `.qclocal` 文件才能被 `cocli app list` 识别
 - 💡 使用 `inherit: true` 可以让应用继承工作区的仓库配置
 

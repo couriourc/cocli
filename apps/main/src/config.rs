@@ -21,6 +21,19 @@ pub struct Config {
     /// AI 配置
     #[serde(default)]
     pub ai: Option<AIConfig>,
+    /// 工作区信息（可选）
+    #[serde(default)]
+    pub workspace: Option<WorkspaceInfo>,
+}
+
+/// 工作区信息
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WorkspaceInfo {
+    /// 工作区名称
+    pub name: String,
+    /// 工作区描述（可选）
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
 /// AI 配置（从 ai 模块导入，避免循环依赖）
@@ -476,6 +489,7 @@ impl Config {
             proxy: None,
             repos: vec![],
             ai: None,
+            workspace: None,
         }))
     }
 }

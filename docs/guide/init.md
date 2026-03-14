@@ -1,15 +1,15 @@
 # 初始化配置
 
-CoCli 使用配置文件来管理仓库和认证信息。你可以使用 `qcl init` 命令快速创建配置文件。
+CoCli 使用配置文件来管理仓库和认证信息。你可以使用 `cocli init` 命令快速创建配置文件。
 
 ## 基本用法
 
 ### 交互式初始化
 
-运行 `qcl init` 命令，工具会引导你完成配置：
+运行 `cocli init` 命令，工具会引导你完成配置：
 
 ```bash
-qcl init
+cocli init
 ```
 
 交互式流程包括：
@@ -30,7 +30,7 @@ qcl init
 使用 `-y` 或 `--yes` 参数快速创建默认配置：
 
 ```bash
-qcl init -y
+cocli init -y
 ```
 
 这将创建一个空的配置文件，你可以稍后手动编辑。
@@ -41,13 +41,13 @@ qcl init -y
 
 ```bash
 # 在当前目录创建
-qcl init -f .qclrc
+cocli init -f .qclrc
 
 # 在用户主目录创建
-qcl init -f ~/.qclrc
+cocli init -f ~/.qclrc
 
 # 指定完整路径
-qcl init -f /path/to/config.yaml
+cocli init -f /path/to/config.yaml
 ```
 
 ## 配置文件位置

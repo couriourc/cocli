@@ -15,41 +15,41 @@
 
 ```bash
 # 1. 初始化配置
-qcl init
+cocli init
 
 # 2. 查看可用模板
-qcl template list
+cocli template list
 
 # 3. 创建项目
-qcl app create --template=vue3 my-app
+cocli app create --template=vue3 my-app
 
 # 4. 进入项目
 cd my-app
 
 # 5. 添加插件
-qcl addons add vue3-funs .
+cocli addons add vue3-funs .
 ```
 
 ### 场景 2：管理工作区
 
 ```bash
 # 1. 创建工作区
-qcl workspace create frontend-workspace ./frontend
+cocli workspace create frontend-workspace ./frontend
 
 # 2. 切换到工作区
-qcl workspace use frontend-workspace
+cocli workspace use frontend-workspace
 
 # 3. 创建多个项目
-qcl app create --template=vue3 admin-panel
-qcl app create --template=react dashboard
+cocli app create --template=vue3 admin-panel
+cocli app create --template=react dashboard
 
 # 4. 查看所有项目
-qcl app list
+cocli app list
 ```
 
 ### 场景 3：配置继承
 
-在工作区根目录配置 `.qclrc`，项目使用 `inherit: true` 继承配置。
+在工作区根目录配置 `.coclirc`，项目使用 `inherit: true` 继承配置。
 
 查看 [配置继承示例](./inherit) 了解详情。
 

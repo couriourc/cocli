@@ -116,7 +116,7 @@ addons/
       └── src/
 ```
 
-`qcl addons list -v` 和 `qcl addons detail` 命令会自动读取并显示 README.md 内容。
+`cocli addons list -v` 和 `cocli addons detail` 命令会自动读取并显示 README.md 内容。
 
 ## 路径说明
 

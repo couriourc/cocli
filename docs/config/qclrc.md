@@ -143,10 +143,10 @@ repos:
 
 ## 初始化配置
 
-使用 `qcl init` 命令可以交互式创建配置文件：
+使用 `cocli init` 命令可以交互式创建配置文件：
 
 ```bash
-qcl init
+cocli init
 ```
 
 ## 相关文档

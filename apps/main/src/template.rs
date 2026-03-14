@@ -207,6 +207,7 @@ impl TemplateManager {
                         proxy: None,
                         repos: vec![],
                         ai: None,
+                        workspace: None,
                     });
                     (repos.clone(), auth_config)
                 } else {
@@ -303,6 +304,7 @@ impl TemplateManager {
                         proxy: None,
                         repos: vec![],
                         ai: None,
+                        workspace: None,
                     });
                     (repos.clone(), auth_config)
                 } else {
@@ -512,6 +514,7 @@ impl TemplateManager {
                         proxy: None,
                         repos: vec![],
                         ai: None,
+                        workspace: None,
                     });
                     (repos.clone(), auth_config)
                 } else {
@@ -719,6 +722,7 @@ impl TemplateManager {
                     proxy: None,
                     repos: vec![],
                     ai: None,
+                    workspace: None,
                 });
                 (repos.clone(), auth_config)
             } else {
@@ -876,6 +880,7 @@ impl TemplateManager {
                     proxy: None,
                     repos: vec![],
                     ai: None,
+                    workspace: None,
                 });
                 (repos.clone(), auth_config)
             } else {

@@ -1,13 +1,13 @@
 # 配置管理命令
 
-## qcl config get
+## cocli config get
 
 获取指定配置键的值。
 
 ### 语法
 
 ```bash
-qcl config get <配置键>
+cocli config get <配置键>
 ```
 
 ### 参数
@@ -20,27 +20,27 @@ qcl config get <配置键>
 
 ```bash
 # 获取用户名
-qcl config get username
+cocli config get username
 
 # 获取仓库配置
-qcl config get repos
+cocli config get repos
 ```
 
 ### 输出示例
 
 ```bash
 # 获取 username
-$ qcl config get username
+$ cocli config get username
 your-username
 
 # 获取 repos
-$ qcl config get repos
+$ cocli config get repos
 - local:
     type: local
     url: /path/to/repo
 ```
 
-## qcl config set
+## cocli config set
 
 设置指定配置键的值。
 
@@ -51,7 +51,7 @@ $ qcl config get repos
 ### 语法
 
 ```bash
-qcl config set <配置键> <配置值>
+cocli config set <配置键> <配置值>
 ```
 
 ### 参数
@@ -61,20 +61,20 @@ qcl config set <配置键> <配置值>
 | `<配置键>` | 配置键名称（必需） |
 | `<配置值>` | 配置值（必需） |
 
-## qcl config list
+## cocli config list
 
 列出所有配置信息，包括当前工作区。
 
 ### 语法
 
 ```bash
-qcl config list
+cocli config list
 ```
 
 ### 示例
 
 ```bash
-qcl config list
+cocli config list
 ```
 
 ### 输出示例

@@ -7,7 +7,7 @@
 - [安装](#安装)
 - [快速开始](#快速开始)
 - [配置文件](#配置文件)
-- [项目配置文件 (.qclocal)](#项目配置文件-qclocal)
+- [项目配置文件 (.cocliocal)](#项目配置文件-cocliocal)
 - [仓库元数据](#仓库元数据)
 - [命令参考](#命令参考)
   - [应用管理 (app)](#应用管理-app)
@@ -24,16 +24,16 @@
 
 ```bash
 # 全局安装
-pnpm add -g qcl
+pnpm add -g git+https://github.com/couriourc/cocli.git
 
 # 或使用 dlx 直接运行
-pnpm dlx qcl@latest <command>
+pnpm dlx git+https://github.com/couriourc/cocli.git <command>
 ```
 
 ### 使用 npm
 
 ```bash
-npm install -g qcl
+npm install -g git+https://github.com/couriourc/cocli.git
 ```
 
 ### 使用 cargo（从源码构建）
@@ -47,7 +47,7 @@ cargo build --release
 
 1. **创建配置文件**
 
-   在用户主目录或项目根目录创建 `.qclrc` 或 `.qcl.yaml`：
+   在用户主目录或项目根目录创建 `.coclirc` 或 `.cocli.yaml`：
 
    ```yaml
    repos:
@@ -59,25 +59,25 @@ cargo build --release
 2. **列出可用模板**
 
    ```bash
-   qcl template list
+   cocli template list
    ```
 
 3. **创建项目**
 
    ```bash
-   qcl app create --template=vue3 my-app
+   cocli app create --template=vue3 my-app
    ```
    
    创建项目后除了基础模板的内容外，如果模板内存在 `.qclocal`，则直接使用，否则默认创建。
    
-   注意：`qcl create` 命令已废弃，请使用 `qcl app create`。
+   注意：`cocli create` 命令已废弃，请使用 `cocli app create`。
 
 ## 配置文件
 
 配置文件支持以下位置（按优先级排序）：
 
-1. 当前工作目录：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
-2. 用户主目录：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
+1. 当前工作目录：`.coclirc`、`.cocli.yaml`、`.cocli.yml`
+2. 用户主目录：`~/.coclirc`、`~/.cocli.yaml`、`~/.cocli.yml`
 
 ### 配置格式
 
@@ -144,16 +144,16 @@ repos:
 
 配置文件按以下优先级加载（高优先级覆盖低优先级）：
 
-1. **`.qclocal`**（项目目录中的本地配置）
+1. **`.cocliocal`**（项目目录中的本地配置）
 2. **工作区配置**（如果设置了当前工作区）
-3. **父级目录的 `.qclrc`**（向上查找）
-4. **全局配置**（`~/.qclrc` 或 `~/.qcl.yaml`）
+3. **父级目录的 `.coclirc`**（向上查找）
+4. **全局配置**（`~/.coclirc` 或 `~/.cocli.yaml`）
 
-## 项目配置文件 (.qclocal)
+## 项目配置文件 (.cocliocal)
 
-每个项目目录可以包含一个 `.qclocal` 文件，用于配置项目特定的设置。
+每个项目目录可以包含一个 `.cocliocal` 文件，用于配置项目特定的设置。
 
-### .qclocal 格式
+### .cocliocal 格式
 
 ```yaml
 # 当前创建的项目名
@@ -167,7 +167,7 @@ addons:
   # 插件安装目录（默认：./addons）
   target_dir: ./addons
   
-  # 当执行 qcl addons sync 时自动同步的插件列表
+  # 当执行 cocli addons sync 时自动同步的插件列表
   include:
     - addon-name
     - another-addon
@@ -182,14 +182,14 @@ repos:
 inherit: true
 ```
 
-### .qclocal 说明
+### .cocliocal 说明
 
 - **`project`**：项目名称（可选）
 - **`template`**：使用的模板名称（必需）
 - **`addons.target_dir`**：插件安装目录，默认为 `./addons`。每个插件会安装到 `{target_dir}/{addon_name}/` 目录下
-- **`addons.include`**：需要同步的插件列表，执行 `qcl addons sync` 时会自动同步这些插件
+- **`addons.include`**：需要同步的插件列表，执行 `cocli addons sync` 时会自动同步这些插件
 - **`repos`**：项目特定的仓库配置（可选）。如果未设置，将从父级目录或全局配置中查找
-- **`inherit`**：如果设置为 `true` 且 `repos` 为空，工具会自动从父级目录的 `.qclrc` 文件中查找 `repos` 配置
+- **`inherit`**：如果设置为 `true` 且 `repos` 为空，工具会自动从父级目录的 `.coclirc` 文件中查找 `repos` 配置
 
 ### 配置继承示例
 
@@ -197,14 +197,14 @@ inherit: true
 
 ```
 workspace/
-  .qclrc          # 包含 repos 配置
+  .coclirc          # 包含 repos 配置
   project1/
-    .qclocal      # inherit: true, repos 为空
+    .cocliocal      # inherit: true, repos 为空
   project2/
-    .qclocal      # 包含自己的 repos 配置
+    .cocliocal      # 包含自己的 repos 配置
 ```
 
-- `project1` 会继承 `workspace/.qclrc` 中的 `repos` 配置
+- `project1` 会继承 `workspace/.coclirc` 中的 `repos` 配置
 - `project2` 使用自己的 `repos` 配置
 
 ## 仓库元数据
@@ -258,12 +258,12 @@ addons:
 
 ### 应用管理 (app)
 
-#### `qcl app create` - 创建新项目
+#### `cocli app create` - 创建新项目
 
 从模板创建新项目。
 
 ```bash
-qcl app create --template=<模板名> [--addons=<插件列表>] <项目名>
+cocli app create --template=<模板名> [--addons=<插件列表>] <项目名>
 ```
 
 **参数：**
@@ -276,36 +276,36 @@ qcl app create --template=<模板名> [--addons=<插件列表>] <项目名>
 
 ```bash
 # 创建 Vue 3 项目
-qcl app create --template=vue3 my-vue-app
+cocli app create --template=vue3 my-vue-app
 
 # 创建 React 项目并添加插件
-qcl app create --template=react --addons=add,minus my-react-app
+cocli app create --template=react --addons=add,minus my-react-app
 
 # 使用短选项
-qcl app create -t vue2 -a vue2-funs my-vue2-app
+cocli app create -t vue2 -a vue2-funs my-vue2-app
 ```
 
-**注意：** `qcl create` 命令已废弃，请使用 `qcl app create`。
+**注意：** `cocli create` 命令已废弃，请使用 `cocli app create`。
 
-#### `qcl app list` - 列出应用
+#### `cocli app list` - 列出应用
 
 列出当前工作区（或当前目录）下的所有应用。
 
 ```bash
-qcl app list
+cocli app list
 ```
 
 **说明：**
 
 - 扫描当前工作区目录（如果设置了工作区）或当前目录
-- 查找包含 `.qclocal` 文件的子目录
+- 查找包含 `.cocliocal` 文件的子目录
 - 显示每个应用的项目名称、模板和目录名称
 
 **示例：**
 
 ```bash
 # 列出当前工作区的应用
-qcl app list
+cocli app list
 ```
 
 **输出示例：**
@@ -320,19 +320,19 @@ qcl app list
 
 ### 模板管理 (template)
 
-#### `qcl template list` - 列出可用模板
+#### `cocli template list` - 列出可用模板
 
 列出所有可用的模板。
 
 ```bash
-qcl template list
+cocli template list
 ```
 
 **示例：**
 
 ```bash
 # 列出所有模板
-qcl template list
+cocli template list
 ```
 
 **输出示例：**
@@ -346,12 +346,12 @@ qcl template list
 
 ### 插件管理 (addons)
 
-#### `qcl addons list` - 列出可用插件
+#### `cocli addons list` - 列出可用插件
 
 列出所有可用的插件。
 
 ```bash
-qcl addons list [-v|--verbose]
+cocli addons list [-v|--verbose]
 ```
 
 **参数：**
@@ -362,11 +362,11 @@ qcl addons list [-v|--verbose]
 
 ```bash
 # 简单列表
-qcl addons list
+cocli addons list
 
 # 详细信息
-qcl addons list -v
-qcl addons list --verbose
+cocli addons list -v
+cocli addons list --verbose
 ```
 
 **输出示例（简单模式）：**
@@ -394,12 +394,12 @@ add
     ...
 ```
 
-#### `qcl addons detail` - 查看插件详细信息
+#### `cocli addons detail` - 查看插件详细信息
 
 查看指定插件的完整详细信息，包括 README.md 内容。
 
 ```bash
-qcl addons detail <插件名>
+cocli addons detail <插件名>
 ```
 
 **参数：**
@@ -410,10 +410,10 @@ qcl addons detail <插件名>
 
 ```bash
 # 查看 add 插件的详细信息
-qcl addons detail add
+cocli addons detail add
 
 # 查看 vue3-funs 插件的详细信息
-qcl addons detail vue3-funs
+cocli addons detail vue3-funs
 ```
 
 **输出示例：**
@@ -438,12 +438,12 @@ add
     ```
 ```
 
-#### `qcl addons add` - 添加插件到项目
+#### `cocli addons add` - 添加插件到项目
 
 向指定项目或当前目录添加插件。
 
 ```bash
-qcl addons add <插件列表> [项目目录]
+cocli addons add <插件列表> [项目目录]
 ```
 
 **参数：**
@@ -455,26 +455,26 @@ qcl addons add <插件列表> [项目目录]
 
 ```bash
 # 向当前目录添加插件
-qcl addons add add .
-qcl addons add add,minus .
+cocli addons add add .
+cocli addons add add,minus .
 
 # 向指定项目目录添加插件
-qcl addons add add my-project
-qcl addons add add,minus,vue3-funs my-project
+cocli addons add add my-project
+cocli addons add add,minus,vue3-funs my-project
 ```
 
 **说明：**
 
 - 插件会被安装到 `{项目目录}/{addons.target_dir}/{插件名}/` 目录下
-- 如果项目目录中有 `.qclocal` 文件，会更新其中的 `addons.include` 列表
-- 如果项目目录中没有 `.qclocal` 文件，会创建一个新的
+- 如果项目目录中有 `.cocliocal` 文件，会更新其中的 `addons.include` 列表
+- 如果项目目录中没有 `.cocliocal` 文件，会创建一个新的
 
-#### `qcl addons sync` - 同步项目中的插件
+#### `cocli addons sync` - 同步项目中的插件
 
-根据 `.qclocal` 文件中的 `addons.include` 配置，同步项目中的插件。
+根据 `.cocliocal` 文件中的 `addons.include` 配置，同步项目中的插件。
 
 ```bash
-qcl addons sync [项目目录]
+cocli addons sync [项目目录]
 ```
 
 **参数：**
@@ -485,15 +485,15 @@ qcl addons sync [项目目录]
 
 ```bash
 # 同步当前目录的插件
-qcl addons sync .
+cocli addons sync .
 
 # 同步指定项目的插件
-qcl addons sync my-project
+cocli addons sync my-project
 ```
 
 **说明：**
 
-- 读取项目目录中的 `.qclocal` 文件
+- 读取项目目录中的 `.cocliocal` 文件
 - 根据 `addons.include` 列表同步所有插件
 - 如果插件已存在，会更新到最新版本
 
@@ -501,12 +501,12 @@ qcl addons sync my-project
 
 工作区用于管理多个项目的集合，类似于 VS Code 的工作区概念。
 
-#### `qcl workspace create` - 创建工作区
+#### `cocli workspace create` - 创建工作区
 
 创建新工作区。
 
 ```bash
-qcl workspace create <工作区名称> [工作区路径]
+cocli workspace create <工作区名称> [工作区路径]
 ```
 
 **参数：**
@@ -518,32 +518,32 @@ qcl workspace create <工作区名称> [工作区路径]
 
 ```bash
 # 在当前目录创建工作区
-qcl workspace create my-workspace .
+cocli workspace create my-workspace .
 
 # 在指定路径创建工作区
-qcl workspace create my-workspace /path/to/workspace
+cocli workspace create my-workspace /path/to/workspace
 ```
 
-#### `qcl workspace list` - 列出所有工作区
+#### `cocli workspace list` - 列出所有工作区
 
 列出所有已配置的工作区。
 
 ```bash
-qcl workspace list
+cocli workspace list
 ```
 
 **示例：**
 
 ```bash
-qcl workspace list
+cocli workspace list
 ```
 
-#### `qcl workspace use` - 切换工作区
+#### `cocli workspace use` - 切换工作区
 
 切换到指定的工作区。
 
 ```bash
-qcl workspace use <工作区名称>
+cocli workspace use <工作区名称>
 ```
 
 **参数：**
@@ -553,29 +553,29 @@ qcl workspace use <工作区名称>
 **示例：**
 
 ```bash
-qcl workspace use my-workspace
+cocli workspace use my-workspace
 ```
 
-#### `qcl workspace current` - 显示当前工作区
+#### `cocli workspace current` - 显示当前工作区
 
 显示当前正在使用的工作区。
 
 ```bash
-qcl workspace current
+cocli workspace current
 ```
 
 **示例：**
 
 ```bash
-qcl workspace current
+cocli workspace current
 ```
 
-#### `qcl workspace delete` - 删除工作区
+#### `cocli workspace delete` - 删除工作区
 
 删除指定的工作区（不会删除工作区目录）。
 
 ```bash
-qcl workspace delete <工作区名称>
+cocli workspace delete <工作区名称>
 ```
 
 **参数：**
@@ -585,17 +585,17 @@ qcl workspace delete <工作区名称>
 **示例：**
 
 ```bash
-qcl workspace delete my-workspace
+cocli workspace delete my-workspace
 ```
 
 ### 配置管理 (config)
 
-#### `qcl config get` - 获取配置值
+#### `cocli config get` - 获取配置值
 
 获取指定配置键的值。
 
 ```bash
-qcl config get <配置键>
+cocli config get <配置键>
 ```
 
 **参数：**
@@ -606,18 +606,18 @@ qcl config get <配置键>
 
 ```bash
 # 获取用户名
-qcl config get username
+cocli config get username
 
 # 获取仓库配置
-qcl config get repos
+cocli config get repos
 ```
 
-#### `qcl config set` - 设置配置值
+#### `cocli config set` - 设置配置值
 
 设置指定配置键的值（暂未实现）。
 
 ```bash
-qcl config set <配置键> <配置值>
+cocli config set <配置键> <配置值>
 ```
 
 **参数：**
@@ -627,18 +627,18 @@ qcl config set <配置键> <配置值>
 
 **注意：** 此功能暂未实现。
 
-#### `qcl config list` - 列出所有配置
+#### `cocli config list` - 列出所有配置
 
 列出所有配置信息，包括当前工作区。
 
 ```bash
-qcl config list
+cocli config list
 ```
 
 **示例：**
 
 ```bash
-qcl config list
+cocli config list
 ```
 
 ## 示例
@@ -647,48 +647,48 @@ qcl config list
 
 ```bash
 # 1. 列出可用模板
-qcl template list
+cocli template list
 
 # 2. 创建项目
-qcl app create --template=vue3 my-vue3-app
+cocli app create --template=vue3 my-vue3-app
 
 # 3. 进入项目目录
 cd my-vue3-app
 
 # 4. 添加插件
-qcl addons add vue3-funs,add,minus .
+cocli addons add vue3-funs,add,minus .
 
 # 5. 查看插件详细信息
-qcl addons detail vue3-funs
+cocli addons detail vue3-funs
 
 # 6. 列出所有可用插件（详细信息）
-qcl addons list -v
+cocli addons list -v
 ```
 
 ### 示例 2：使用工作区管理多个项目
 
 ```bash
 # 1. 创建工作区
-qcl workspace create my-workspace /path/to/workspace
+cocli workspace create my-workspace /path/to/workspace
 
 # 2. 切换到工作区
-qcl workspace use my-workspace
+cocli workspace use my-workspace
 
 # 3. 创建多个项目
-qcl app create --template=vue3 project1
-qcl app create --template=react project2
+cocli app create --template=vue3 project1
+cocli app create --template=react project2
 
 # 4. 列出工作区中的所有应用
-qcl app list
+cocli app list
 
 # 5. 查看当前工作区
-qcl workspace current
+cocli workspace current
 ```
 
 ### 示例 3：使用本地仓库
 
 ```yaml
-# .qclrc
+# .coclirc
 repos:
   - local:
       type: local
@@ -697,16 +697,16 @@ repos:
 
 ```bash
 # 列出本地仓库中的模板
-qcl template list
+cocli template list
 
 # 创建项目
-qcl app create --template=react my-app
+cocli app create --template=react my-app
 ```
 
 ### 示例 4：使用 GitHub 仓库
 
 ```yaml
-# .qclrc
+# .coclirc
 repos:
   - github:
       type: git
@@ -716,13 +716,13 @@ repos:
 
 ```bash
 # 从 GitHub 仓库创建项目
-qcl app create --template=vue3 my-app
+cocli app create --template=vue3 my-app
 ```
 
-### 示例 5：使用 .qclocal 配置继承
+### 示例 5：使用 .cocliocal 配置继承
 
 ```yaml
-# workspace/.qclrc
+# workspace/.coclirc
 repos:
   - local:
       type: local
@@ -730,7 +730,7 @@ repos:
 ```
 
 ```yaml
-# workspace/project1/.qclocal
+# workspace/project1/.cocliocal
 project: project1
 template: vue3
 addons:
@@ -741,9 +741,9 @@ inherit: true  # 继承父级目录的 repos 配置
 ```
 
 ```bash
-# 在 project1 目录下，会自动使用 workspace/.qclrc 中的 repos 配置
+# 在 project1 目录下，会自动使用 workspace/.coclirc 中的 repos 配置
 cd workspace/project1
-qcl addons list  # 使用继承的 repos 配置
+cocli addons list  # 使用继承的 repos 配置
 ```
 
 ## 常见问题
@@ -751,15 +751,15 @@ qcl addons list  # 使用继承的 repos 配置
 ### Q: 配置文件应该放在哪里？
 
 A: 配置文件可以放在：
-- 用户主目录（`~/.qclrc`）- 全局配置
-- 当前工作目录（`.qclrc`）- 项目特定配置
-- 项目目录（`.qclocal`）- 项目本地配置
+- 用户主目录（`~/.coclirc`）- 全局配置
+- 当前工作目录（`.coclirc`）- 项目特定配置
+- 项目目录（`.cocliocal`）- 项目本地配置
 
 配置优先级（从高到低）：
-1. `.qclocal`（项目目录）
+1. `.cocliocal`（项目目录）
 2. 工作区配置（如果设置了工作区）
-3. 父级目录的 `.qclrc`（向上查找）
-4. 全局配置（`~/.qclrc`）
+3. 父级目录的 `.coclirc`（向上查找）
+4. 全局配置（`~/.coclirc`）
 
 ### Q: 如何添加多个仓库？
 
@@ -790,23 +790,23 @@ A:
 3. 在 `meta.yaml` 中定义模板路径
 4. 将仓库添加到配置文件中
 
-### Q: `.qclocal` 中的 `inherit` 字段有什么用？
+### Q: `.cocliocal` 中的 `inherit` 字段有什么用？
 
-A: `inherit` 字段用于配置继承。如果设置为 `true` 且 `repos` 为空，工具会自动从父级目录的 `.qclrc` 文件中查找 `repos` 配置。这对于在同一个工作区下管理多个项目非常有用。
+A: `inherit` 字段用于配置继承。如果设置为 `true` 且 `repos` 为空，工具会自动从父级目录的 `.coclirc` 文件中查找 `repos` 配置。这对于在同一个工作区下管理多个项目非常有用。
 
 ### Q: 插件安装在哪里？
 
 A: 插件会安装到 `{项目目录}/{addons.target_dir}/{插件名}/` 目录下。默认情况下，`addons.target_dir` 为 `./addons`，所以插件会安装在 `./addons/{插件名}/` 目录下。
 
-### Q: `qcl addons sync` 和 `qcl addons add` 有什么区别？
+### Q: `cocli addons sync` 和 `cocli addons add` 有什么区别？
 
 A: 
-- `qcl addons add`：添加指定的插件到项目，并更新 `.qclocal` 文件
-- `qcl addons sync`：根据 `.qclocal` 文件中的 `addons.include` 列表，同步所有配置的插件
+- `cocli addons add`：添加指定的插件到项目，并更新 `.cocliocal` 文件
+- `cocli addons sync`：根据 `.cocliocal` 文件中的 `addons.include` 列表，同步所有配置的插件
 
 ### Q: 如何查看插件的详细信息？
 
-A: 使用 `qcl addons detail <插件名>` 命令可以查看插件的完整详细信息，包括 README.md 内容。或者使用 `qcl addons list -v` 查看所有插件的详细信息。
+A: 使用 `cocli addons detail <插件名>` 命令可以查看插件的完整详细信息，包括 README.md 内容。或者使用 `cocli addons list -v` 查看所有插件的详细信息。
 
 ## 许可证
 

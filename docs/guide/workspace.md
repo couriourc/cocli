@@ -19,55 +19,78 @@ workspace/
 
 ## 创建工作区
 
-使用 `qcl workspace create` 命令创建工作区：
+使用 `cocli workspace create` 命令创建工作区：
 
 ```bash
+# 在当前目录下创建同名子目录作为工作区（推荐）
+cocli workspace create my-workspace
+
 # 在当前目录创建工作区
-qcl workspace create my-workspace .
+cocli workspace create my-workspace .
 
 # 在指定路径创建工作区
-qcl workspace create my-workspace /path/to/workspace
+cocli workspace create my-workspace /path/to/workspace
 ```
+
+**提示**：
+- 如果只提供工作区名称而不指定路径，系统会自动在当前目录下创建与工作区名称相同的子目录，这样更符合常见的使用场景
+- 创建工作区时，如果工作区目录下不存在 `.qclrc` 配置文件，系统会自动创建一个默认配置文件
+- 自动创建的配置文件会从全局配置继承 `repos` 配置（如果存在），方便快速开始使用
 
 ## 切换工作区
 
-使用 `qcl workspace use` 切换到指定工作区：
+使用 `cocli workspace use` 切换到指定工作区：
 
 ```bash
-qcl workspace use my-workspace
+cocli workspace use my-workspace
 ```
 
-切换后，`qcl app list` 等命令会在该工作区目录下执行。
+切换后，`cocli app list` 等命令会在该工作区目录下执行。
 
 ## 查看工作区
 
 ### 列出所有工作区
 
 ```bash
-qcl workspace list
+cocli workspace list
 ```
 
 ### 查看当前工作区
 
 ```bash
-qcl workspace current
+cocli workspace current
 ```
 
 ## 删除工作区
 
-使用 `qcl workspace delete` 删除工作区（不会删除工作区目录）：
+使用 `cocli workspace delete` 删除工作区（不会删除工作区目录）：
 
 ```bash
-qcl workspace delete my-workspace
+cocli workspace delete my-workspace
 ```
 
 ## 工作区配置
 
-工作区可以有自己的 `.qclrc` 配置文件。工作区内的项目可以：
+工作区可以有自己的 `.qclrc` 配置文件。创建工作区时，如果工作区目录下不存在 `.qclrc` 文件，系统会自动创建一个默认配置文件，并从全局配置继承 `repos` 配置（如果存在）。
+
+工作区内的项目可以：
 
 - 使用工作区的仓库配置
 - 通过 `inherit: true` 继承工作区配置
 - 覆盖工作区配置
+
+### 配置文件位置
+
+工作区配置文件位于工作区根目录：
+
+```
+my-workspace/
+  ├── .qclrc          # 工作区配置文件（自动创建）
+  ├── project1/
+  │   └── .qclocal
+  └── project2/
+      └── .qclocal
+```
 
 ## 使用场景
 
@@ -76,17 +99,19 @@ qcl workspace delete my-workspace
 当你需要同时开发多个相关项目时：
 
 ```bash
-# 创建工作区
-qcl workspace create frontend-workspace ./frontend
+# 创建工作区（自动在当前目录下创建 frontend-workspace 目录）
+cocli workspace create frontend-workspace
+
+# 切换到工作区目录
+cd frontend-workspace
 
 # 创建多个项目
-cd frontend
-qcl app create --template=vue3 admin-panel
-qcl app create --template=vue3 user-portal
-qcl app create --template=react dashboard
+cocli app create --template=vue3 admin-panel
+cocli app create --template=vue3 user-portal
+cocli app create --template=react dashboard
 
 # 查看所有项目
-qcl app list
+cocli app list
 ```
 
 ### 场景 2：团队协作
@@ -95,7 +120,7 @@ qcl app list
 
 ```bash
 # 每个成员切换到相同的工作区
-qcl workspace use team-workspace
+cocli workspace use team-workspace
 
 # 所有成员共享相同的仓库配置
 ```
@@ -105,13 +130,13 @@ qcl workspace use team-workspace
 1. **为每个团队/项目组创建工作区**
 2. **在工作区根目录配置 `.qclrc`**
 3. **项目使用 `inherit: true` 继承工作区配置**
-4. **定期使用 `qcl workspace list` 查看工作区状态**
+4. **定期使用 `cocli workspace list` 查看工作区状态**
 
 ## 相关命令
 
-- `qcl workspace create` - 创建工作区
-- `qcl workspace list` - 列出所有工作区
-- `qcl workspace use` - 切换工作区
-- `qcl workspace current` - 查看当前工作区
-- `qcl workspace delete` - 删除工作区
+- `cocli workspace create` - 创建工作区
+- `cocli workspace list` - 列出所有工作区
+- `cocli workspace use` - 切换工作区
+- `cocli workspace current` - 查看当前工作区
+- `cocli workspace delete` - 删除工作区
 

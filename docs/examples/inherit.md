@@ -10,18 +10,18 @@
 
 ```
 workspace/
-  ├── .qclrc              # 工作区配置文件
+  ├── .coclirc              # 工作区配置文件
   ├── project1/
-  │   └── .qclocal        # inherit: true
+  │   └── .cocliocal        # inherit: true
   ├── project2/
-  │   └── .qclocal        # inherit: true
+  │   └── .cocliocal        # inherit: true
   └── project3/
-      └── .qclocal        # 自己的 repos 配置
+      └── .cocliocal        # 自己的 repos 配置
 ```
 
 ## 步骤 1：创建工作区配置
 
-在工作区根目录创建 `.qclrc`：
+在工作区根目录创建 `.coclirc`：
 
 ```yaml
 repos:
@@ -43,10 +43,10 @@ repos:
 
 ```bash
 cd workspace
-qcl app create --template=vue3 project1
+cocli app create --template=vue3 project1
 ```
 
-编辑 `project1/.qclocal`：
+编辑 `project1/.cocliocal`：
 
 ```yaml
 project: project1
@@ -63,10 +63,10 @@ inherit: true  # 继承父级配置
 创建项目：
 
 ```bash
-qcl app create --template=react project2
+cocli app create --template=react project2
 ```
 
-编辑 `project2/.qclocal`：
+编辑 `project2/.cocliocal`：
 
 ```yaml
 project: project2
@@ -83,10 +83,10 @@ inherit: true  # 继承父级配置
 创建项目：
 
 ```bash
-qcl app create --template=vue3 project3
+cocli app create --template=vue3 project3
 ```
 
-编辑 `project3/.qclocal`：
+编辑 `project3/.cocliocal`：
 
 ```yaml
 project: project3
@@ -108,8 +108,8 @@ inherit: false
 由于设置了 `inherit: true` 且 `repos` 为空：
 
 1. 首先查找项目自己的 `repos`（为空）
-2. 向上查找父级目录的 `.qclrc`
-3. 找到 `workspace/.qclrc`，使用其 `repos` 配置
+2. 向上查找父级目录的 `.coclirc`
+3. 找到 `workspace/.coclirc`，使用其 `repos` 配置
 
 ### Project 3
 
@@ -125,11 +125,11 @@ inherit: false
 ```bash
 # 在 project1 目录下
 cd project1
-qcl addons list  # 使用继承的 repos 配置
+cocli addons list  # 使用继承的 repos 配置
 
 # 在 project3 目录下
 cd ../project3
-qcl addons list  # 使用自己的 repos 配置
+cocli addons list  # 使用自己的 repos 配置
 ```
 
 ## 优势
@@ -143,14 +143,14 @@ qcl addons list  # 使用自己的 repos 配置
 
 ## 最佳实践
 
-1. **工作区配置** - 在工作区根目录配置 `.qclrc`
+1. **工作区配置** - 在工作区根目录配置 `.coclirc`
 2. **项目继承** - 项目使用 `inherit: true` 继承配置
 3. **特殊覆盖** - 特殊项目可以覆盖继承的配置
 4. **文档说明** - 在 README 中说明配置继承关系
 
 ## 相关文档
 
-- [`.qclocal` 配置](/config/qclocal)
+- [`.cocliocal` 配置](/config/cocliocal)
 - [工作区管理](/guide/workspace)
 - [配置优先级](/config/)
 

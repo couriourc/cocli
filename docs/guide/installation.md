@@ -7,31 +7,31 @@ CoCli 可以通过多种方式安装。
 ### pnpm（推荐）
 
 ```bash
-# 全局安装
-pnpm add -g qcl
+# 全局安装（从 Git 安装）
+pnpm add -g git+https://github.com/couriourc/cocli.git
 
 # 验证安装
-qcl --version
+cocli --version
 ```
 
 ### npm
 
 ```bash
 # 全局安装
-npm install -g qcl
+npm install -g git+https://github.com/couriourc/cocli.git
 
 # 验证安装
-qcl --version
+cocli --version
 ```
 
 ### yarn
 
 ```bash
 # 全局安装
-yarn global add qcl
+yarn global add git+https://github.com/couriourc/cocli.git
 
 # 验证安装
-qcl --version
+cocli --version
 ```
 
 ## 使用 dlx（无需安装）
@@ -39,7 +39,7 @@ qcl --version
 使用 pnpm dlx 可以直接运行，无需全局安装：
 
 ```bash
-pnpm dlx qcl@latest app create --template=vue3 my-app
+pnpm dlx git+https://github.com/couriourc/cocli.git app create --template=vue3 my-app
 ```
 
 ## 从源码构建
@@ -78,7 +78,7 @@ pnpm dlx qcl@latest app create --template=vue3 my-app
    cargo run -- --help
 
    # 或使用构建后的二进制文件
-   ./target/release/qcl --help
+   ./target/release/cocli --help
    ```
 
 ## 验证安装
@@ -86,8 +86,8 @@ pnpm dlx qcl@latest app create --template=vue3 my-app
 安装完成后，运行以下命令验证：
 
 ```bash
-qcl --version
-qcl --help
+cocli --version
+cocli --help
 ```
 
 如果看到版本信息和帮助信息，说明安装成功！
@@ -97,26 +97,26 @@ qcl --help
 ### pnpm
 
 ```bash
-pnpm remove -g qcl
+pnpm remove -g @couriourc/cocli
 ```
 
 ### npm
 
 ```bash
-npm uninstall -g qcl
+npm uninstall -g @couriourc/cocli
 ```
 
 ### yarn
 
 ```bash
-yarn global remove qcl
+yarn global remove @couriourc/cocli
 ```
 
 ## 故障排除
 
 ### 命令未找到
 
-如果运行 `qcl` 时提示命令未找到：
+如果运行 `cocli` 时提示命令未找到：
 
 1. **检查 PATH 环境变量**
 
@@ -133,7 +133,7 @@ yarn global remove qcl
 2. **重新安装**
 
    ```bash
-   pnpm add -g qcl --force
+   pnpm add -g git+https://github.com/couriourc/cocli.git --force
    ```
 
 ### 权限问题
@@ -142,7 +142,7 @@ yarn global remove qcl
 
 ```bash
 # Linux/macOS - 使用 sudo
-sudo pnpm add -g qcl
+sudo pnpm add -g git+https://github.com/couriourc/cocli.git
 
 # 或配置 npm 不使用 sudo
 mkdir ~/.npm-global
@@ -156,12 +156,12 @@ export PATH=~/.npm-global/bin:$PATH
 
 ```bash
 # pnpm
-pnpm update -g qcl
+pnpm update -g git+https://github.com/couriourc/cocli.git
 
 # npm
-npm update -g qcl
+npm update -g git+https://github.com/couriourc/cocli.git
 
 # yarn
-yarn global upgrade qcl
+yarn global upgrade git+https://github.com/couriourc/cocli.git
 ```
 

@@ -25,10 +25,10 @@ CoCli 会按以下优先级查找配置文件：
 
 ## 快速开始
 
-使用 `qcl init` 快速创建配置文件：
+使用 `cocli init` 快速创建配置文件：
 
 ```bash
-qcl init
+cocli init
 ```
 
 ## 相关文档

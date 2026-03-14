@@ -1,13 +1,13 @@
 # 应用管理命令
 
-## qcl app create
+## cocli app create
 
 从模板创建新项目。
 
 ### 语法
 
 ```bash
-qcl app create --template=<模板名> [--addons=<插件列表>] <项目名>
+cocli app create --template=<模板名> [--addons=<插件列表>] <项目名>
 ```
 
 ### 参数
@@ -22,13 +22,13 @@ qcl app create --template=<模板名> [--addons=<插件列表>] <项目名>
 
 ```bash
 # 创建 Vue 3 项目
-qcl app create --template=vue3 my-vue-app
+cocli app create --template=vue3 my-vue-app
 
 # 创建 React 项目并添加插件
-qcl app create --template=react --addons=add,minus my-react-app
+cocli app create --template=react --addons=add,minus my-react-app
 
 # 使用短选项
-qcl app create -t vue2 -a vue2-funs my-vue2-app
+cocli app create -t vue2 -a vue2-funs my-vue2-app
 ```
 
 ### 说明
@@ -37,20 +37,20 @@ qcl app create -t vue2 -a vue2-funs my-vue2-app
 - 如果模板内已存在 `.qclocal`，会直接使用
 - 可以同时添加多个插件
 
-## qcl app list
+## cocli app list
 
 列出当前工作区（或当前目录）下的所有应用。
 
 ### 语法
 
 ```bash
-qcl app list
+cocli app list
 ```
 
 ### 示例
 
 ```bash
-qcl app list
+cocli app list
 ```
 
 ### 输出示例

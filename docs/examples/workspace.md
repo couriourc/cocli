@@ -17,12 +17,12 @@ mkdir frontend
 cd frontend
 
 # 创建工作区
-qcl workspace create frontend-workspace .
+cocli workspace create frontend-workspace .
 ```
 
 ## 步骤 2：配置工作区
 
-在工作区根目录创建 `.qclrc`：
+在工作区根目录创建 `.coclirc`：
 
 ```yaml
 repos:
@@ -35,20 +35,20 @@ repos:
 
 ```bash
 # 创建管理后台
-qcl app create --template=vue3 admin-panel
+cocli app create --template=vue3 admin-panel
 
 # 创建用户门户
-qcl app create --template=vue3 user-portal
+cocli app create --template=vue3 user-portal
 
 # 创建数据看板
-qcl app create --template=react dashboard
+cocli app create --template=react dashboard
 ```
 
 ## 步骤 4：配置项目继承
 
-编辑每个项目的 `.qclocal`，添加 `inherit: true`：
+编辑每个项目的 `.cocliocal`，添加 `inherit: true`：
 
-**admin-panel/.qclocal:**
+**admin-panel/.cocliocal:**
 
 ```yaml
 project: admin-panel
@@ -60,7 +60,7 @@ addons:
 inherit: true
 ```
 
-**user-portal/.qclocal:**
+**user-portal/.cocliocal:**
 
 ```yaml
 project: user-portal
@@ -72,7 +72,7 @@ addons:
 inherit: true
 ```
 
-**dashboard/.qclocal:**
+**dashboard/.cocliocal:**
 
 ```yaml
 project: dashboard
@@ -87,13 +87,13 @@ inherit: true
 ## 步骤 5：切换工作区
 
 ```bash
-qcl workspace use frontend-workspace
+cocli workspace use frontend-workspace
 ```
 
 ## 步骤 6：查看所有项目
 
 ```bash
-qcl app list
+cocli app list
 ```
 
 输出：
@@ -110,7 +110,7 @@ qcl app list
 ## 步骤 7：查看当前工作区
 
 ```bash
-qcl workspace current
+cocli workspace current
 ```
 
 输出：
@@ -124,15 +124,15 @@ qcl workspace current
 
 ```
 frontend/
-  ├── .qclrc                    # 工作区配置
+  ├── .coclirc                    # 工作区配置
   ├── admin-panel/
-  │   ├── .qclocal              # inherit: true
+  │   ├── .cocliocal              # inherit: true
   │   └── addons/
   ├── user-portal/
-  │   ├── .qclocal              # inherit: true
+  │   ├── .cocliocal              # inherit: true
   │   └── addons/
   └── dashboard/
-      ├── .qclocal              # inherit: true
+      ├── .cocliocal              # inherit: true
       └── addons/
 ```
 
@@ -141,7 +141,7 @@ frontend/
 使用工作区管理的好处：
 
 1. **统一配置** - 所有项目共享工作区的仓库配置
-2. **集中管理** - 使用 `qcl app list` 查看所有项目
+2. **集中管理** - 使用 `cocli app list` 查看所有项目
 3. **配置继承** - 项目自动继承工作区配置
 4. **团队协作** - 团队成员使用相同的工作区配置
 
@@ -149,18 +149,18 @@ frontend/
 
 ```bash
 # 创建工作区
-qcl workspace create <名称> <路径>
+cocli workspace create <名称> <路径>
 
 # 切换工作区
-qcl workspace use <名称>
+cocli workspace use <名称>
 
 # 查看所有工作区
-qcl workspace list
+cocli workspace list
 
 # 查看当前工作区
-qcl workspace current
+cocli workspace current
 
 # 删除工作区
-qcl workspace delete <名称>
+cocli workspace delete <名称>
 ```
 

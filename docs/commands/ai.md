@@ -30,35 +30,35 @@ ai:
 
 ## AI 对话
 
-使用 `qcl ai chat` 命令与 AI 进行对话。
+使用 `cocli ai chat` 命令与 AI 进行对话。
 
 ### 基本用法
 
 ```bash
-qcl ai chat "如何创建一个 Vue 3 项目？"
+cocli ai chat "如何创建一个 Vue 3 项目？"
 ```
 
 ### 带上下文的对话
 
 ```bash
-qcl ai chat "优化这个项目的结构" --context "当前项目是一个 React 应用"
+cocli ai chat "优化这个项目的结构" --context "当前项目是一个 React 应用"
 ```
 
 ## 项目建议
 
-使用 `qcl ai suggest` 命令获取项目改进建议。
+使用 `cocli ai suggest` 命令获取项目改进建议。
 
 ### 基本用法
 
 ```bash
 # 分析当前目录的项目
-qcl ai suggest
+cocli ai suggest
 
 # 分析指定路径的项目
-qcl ai suggest /path/to/project
+cocli ai suggest /path/to/project
 
 # 指定建议类型
-qcl ai suggest --type architecture
+cocli ai suggest --type architecture
 ```
 
 ## MCP 工具和资源
@@ -66,7 +66,7 @@ qcl ai suggest --type architecture
 ### 列出可用的 MCP 工具
 
 ```bash
-qcl ai tools
+cocli ai tools
 ```
 
 这将显示所有可用的 MCP 工具及其描述。
@@ -74,7 +74,7 @@ qcl ai tools
 ### 列出可用的 MCP 资源
 
 ```bash
-qcl ai resources
+cocli ai resources
 ```
 
 这将显示所有可用的 MCP 资源（如文件、数据库等）。
@@ -86,33 +86,33 @@ Skills 是预定义的工作流程和提示词模板，用于标准化 AI 任务
 ### 列出所有 Skills
 
 ```bash
-qcl ai skills list
+cocli ai skills list
 ```
 
 ### 查看 Skill 详情
 
 ```bash
-qcl ai skills show project_suggestion
+cocli ai skills show project_suggestion
 ```
 
 ### 执行 Skill
 
 ```bash
 # 使用默认输入执行
-qcl ai skills execute project_suggestion
+cocli ai skills execute project_suggestion
 
 # 使用自定义输入执行
-qcl ai skills execute project_suggestion --inputs '{"project_type":"web","project_name":"my-app","requirements":"需要支持 SSR"}'
+cocli ai skills execute project_suggestion --inputs '{"project_type":"web","project_name":"my-app","requirements":"需要支持 SSR"}'
 ```
 
 ### 创建新 Skill
 
 ```bash
 # 创建基本 Skill
-qcl ai skills create my_skill --description "我的自定义 Skill"
+cocli ai skills create my_skill --description "我的自定义 Skill"
 
 # 使用内置模板创建
-qcl ai skills create project_suggestion --template project_suggestion
+cocli ai skills create project_suggestion --template project_suggestion
 ```
 
 可用的内置模板：
@@ -122,7 +122,7 @@ qcl ai skills create project_suggestion --template project_suggestion
 ### 删除 Skill
 
 ```bash
-qcl ai skills delete my_skill
+cocli ai skills delete my_skill
 ```
 
 ## Skills 配置格式
@@ -173,24 +173,24 @@ outputs:
 
 ```bash
 # 1. 执行项目建议 Skill
-qcl ai skills execute project_suggestion --inputs '{"project_type":"web","project_name":"my-blog","requirements":"需要支持 Markdown 和评论功能"}'
+cocli ai skills execute project_suggestion --inputs '{"project_type":"web","project_name":"my-blog","requirements":"需要支持 Markdown 和评论功能"}'
 
 # 2. 或直接使用 AI 对话
-qcl ai chat "我想创建一个博客项目，需要支持 Markdown 和评论功能，请给我建议"
+cocli ai chat "我想创建一个博客项目，需要支持 Markdown 和评论功能，请给我建议"
 ```
 
 ### 场景 2: 选择最合适的模板
 
 ```bash
 # 执行模板选择 Skill
-qcl ai skills execute template_selection --inputs '{"project_type":"web","tech_stack":"Vue 3","project_scale":"small"}'
+cocli ai skills execute template_selection --inputs '{"project_type":"web","tech_stack":"Vue 3","project_scale":"small"}'
 ```
 
 ### 场景 3: 分析现有项目
 
 ```bash
 # 分析当前项目并提供改进建议
-qcl ai suggest .
+cocli ai suggest .
 ```
 
 ## 故障排除
@@ -221,7 +221,7 @@ qcl ai suggest .
 
 ## 相关命令
 
-- `qcl config get ai` - 获取 AI 配置
-- `qcl config set ai.mcp.server_url <URL>` - 设置 MCP 服务器地址
-- `qcl --help` - 查看所有可用命令
+- `cocli config get ai` - 获取 AI 配置
+- `cocli config set ai.mcp.server_url <URL>` - 设置 MCP 服务器地址
+- `cocli --help` - 查看所有可用命令
 

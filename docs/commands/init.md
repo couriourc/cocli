@@ -1,13 +1,13 @@
 # 初始化命令
 
-## qcl init
+## cocli init
 
 初始化配置文件，创建 `.qclrc` 或 `.qcl.yaml` 文件。
 
 ### 语法
 
 ```bash
-qcl init [-f|--file <文件路径>] [-y|--yes]
+cocli init [-f|--file <文件路径>] [-y|--yes]
 ```
 
 ### 参数
@@ -21,18 +21,18 @@ qcl init [-f|--file <文件路径>] [-y|--yes]
 
 ```bash
 # 交互式初始化（推荐）
-qcl init
+cocli init
 
 # 非交互模式
-qcl init -y
+cocli init -y
 
 # 指定配置文件路径
-qcl init -f ~/.qclrc
+cocli init -f ~/.qclrc
 ```
 
 ### 交互式流程
 
-运行 `qcl init` 后，会引导你完成以下配置：
+运行 `cocli init` 后，会引导你完成以下配置：
 
 1. **全局认证信息**（可选）
    - 全局用户名
@@ -49,7 +49,7 @@ qcl init -f ~/.qclrc
 ### 示例交互
 
 ```bash
-$ qcl init
+$ cocli init
 🔧 初始化 CoCli 配置文件
 按 Enter 跳过可选配置项
 

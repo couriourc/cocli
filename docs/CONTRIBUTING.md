@@ -29,7 +29,7 @@
 
 ```markdown
 \`\`\`bash
-qcl app create --template=vue3 my-app
+cocli app create --template=vue3 my-app
 \`\`\`
 ```
 

@@ -63,9 +63,9 @@ pub struct WorkspaceCreateArgs {
     #[arg(value_name = "WORKSPACE_NAME")]
     pub name: String,
     
-    /// 工作区路径（可选，默认为当前目录）
-    #[arg(value_name = "WORKSPACE_PATH", default_value = ".")]
-    pub path: String,
+    /// 工作区路径（可选，如果未指定，将在当前目录下创建同名子目录）
+    #[arg(value_name = "WORKSPACE_PATH")]
+    pub path: Option<String>,
 }
 
 #[derive(Args)]
@@ -361,6 +361,7 @@ pub async fn handle_init(args: InitArgs) -> anyhow::Result<()> {
         proxy: None,
         repos: vec![],
         ai: None,
+        workspace: None,
     };
     
     if !args.yes {
@@ -602,15 +603,21 @@ pub async fn handle_workspace_create(args: WorkspaceCreateArgs) -> anyhow::Resul
     let mut manager = WorkspaceManagerConfig::load()?;
     
     // 解析工作区路径
-    let workspace_path = if args.path == "." || args.path == "./" {
-        std::env::current_dir()?
-    } else {
-        let path = PathBuf::from(&args.path);
-        if path.is_absolute() {
-            path
+    let workspace_path = if let Some(path) = args.path {
+        // 用户明确指定了路径
+        if path == "." || path == "./" {
+            std::env::current_dir()?
         } else {
-            std::env::current_dir()?.join(&args.path)
+            let path_buf = PathBuf::from(&path);
+            if path_buf.is_absolute() {
+                path_buf
+            } else {
+                std::env::current_dir()?.join(&path)
+            }
         }
+    } else {
+        // 用户未指定路径，在当前目录下创建同名子目录
+        std::env::current_dir()?.join(&args.name)
     };
     
     if !workspace_path.exists() {
@@ -626,6 +633,47 @@ pub async fn handle_workspace_create(args: WorkspaceCreateArgs) -> anyhow::Resul
         anyhow::bail!("该目录已包含应用配置，不能作为工作区根目录");
     }
     
+    // 初始化工作区配置文件（如果不存在）
+    let config_path = workspace_path.join(".qclrc");
+    let config_created = if !config_path.exists() {
+        // 尝试从全局配置继承 repos（如果存在）
+        let mut config = crate::config::Config {
+            username: None,
+            password: None,
+            token: None,
+            proxy: None,
+            repos: vec![],
+            ai: None,
+            workspace: Some(crate::config::WorkspaceInfo {
+                name: args.name.clone(),
+                description: None,
+            }),
+        };
+        
+        // 尝试加载全局配置，继承 repos
+        if let Ok(Some(global_config)) = crate::config::Config::load() {
+            config.repos = global_config.repos.clone();
+        }
+        
+        // 写入配置文件
+        let yaml_content = serde_yaml::to_string(&config)?;
+        std::fs::write(&config_path, yaml_content)?;
+        true
+    } else {
+        // 如果配置文件已存在，更新工作区信息
+        if let Ok(content) = std::fs::read_to_string(&config_path) {
+            if let Ok(mut config) = serde_yaml::from_str::<crate::config::Config>(&content) {
+                config.workspace = Some(crate::config::WorkspaceInfo {
+                    name: args.name.clone(),
+                    description: None,
+                });
+                let yaml_content = serde_yaml::to_string(&config)?;
+                std::fs::write(&config_path, yaml_content)?;
+            }
+        }
+        false
+    };
+    
     let workspace = WorkspaceConfig {
         name: args.name.clone(),
         path: workspace_path.to_string_lossy().to_string(),
@@ -635,30 +683,85 @@ pub async fn handle_workspace_create(args: WorkspaceCreateArgs) -> anyhow::Resul
     
     manager.add_workspace(workspace)?;
     println!("工作区 '{}' 创建成功！", args.name);
+    println!("工作区路径: {}", workspace_path.display());
+    
+    if config_created {
+        println!("配置文件已初始化: {}", config_path.display());
+    }
+    
     Ok(())
 }
 
 pub async fn handle_workspace_list() -> anyhow::Result<()> {
-    let manager = WorkspaceManagerConfig::load()?;
+    use std::fs;
     
-    if manager.workspaces.is_empty() {
-        println!("没有工作区");
+    // 扫描当前目录下的所有子目录，查找包含 .qclrc 的目录
+    let current_dir = std::env::current_dir()?;
+    let mut workspaces = Vec::new();
+    
+    if current_dir.is_dir() {
+        for entry in fs::read_dir(&current_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            
+            // 只检查目录
+            if !path.is_dir() {
+                continue;
+            }
+            
+            // 检查是否包含 .qclrc 文件
+            let qclrc_path = path.join(".qclrc");
+            if !qclrc_path.exists() {
+                continue;
+            }
+            
+            // 检查是否包含 .qclocal 文件（如果是应用目录，则跳过）
+            if path.join(".qclocal").exists() {
+                continue;
+            }
+            
+            // 读取 .qclrc 文件
+            if let Ok(content) = fs::read_to_string(&qclrc_path) {
+                if let Ok(config) = serde_yaml::from_str::<crate::config::Config>(&content) {
+                    if let Some(workspace_info) = config.workspace {
+                        let dir_name = path.file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("unknown")
+                            .to_string();
+                        
+                        workspaces.push((dir_name, path, workspace_info));
+                    }
+                }
+            }
+        }
+    }
+    
+    if workspaces.is_empty() {
+        println!("没有找到工作区");
         return Ok(());
     }
     
+    // 获取当前工作区（如果存在）
+    let manager = WorkspaceManagerConfig::load().ok();
+    let current_workspace_name = manager
+        .as_ref()
+        .and_then(|m| m.current_workspace.as_ref());
+    
     println!("工作区列表:");
-    for workspace in &manager.workspaces {
-        let current_marker = if manager.current_workspace.as_ref().map(|s| s.as_str()) == Some(&workspace.name) {
+    for (_dir_name, workspace_path, workspace_info) in &workspaces {
+        let current_marker = if current_workspace_name.map(|s| s.as_str()) == Some(&workspace_info.name) {
             " (当前)"
         } else {
             ""
         };
-        println!("  - {}{}", workspace.name, current_marker);
-        println!("    路径: {}", workspace.path);
-        if let Some(created_at) = &workspace.created_at {
-            println!("    创建时间: {}", created_at);
+        println!("  - {}{}", workspace_info.name, current_marker);
+        println!("    路径: {}", workspace_path.display());
+        if let Some(description) = &workspace_info.description {
+            println!("    描述: {}", description);
         }
     }
+    
+    println!("\n共找到 {} 个工作区", workspaces.len());
     
     Ok(())
 }

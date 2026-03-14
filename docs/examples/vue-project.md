@@ -7,7 +7,7 @@
 首先，初始化 CoCli 配置：
 
 ```bash
-qcl init
+cocli init
 ```
 
 交互式配置：
@@ -29,13 +29,13 @@ qcl init
 
 仓库类型 (local/github/gitlab/ftp，或 'done' 完成): done
 
-✅ 配置文件已创建: D:\Projects\cocli\.qclrc
+✅ 配置文件已创建: D:\Projects\cocli\.coclirc
 ```
 
 ## 步骤 2：查看可用模板
 
 ```bash
-qcl template list
+cocli template list
 ```
 
 输出：
@@ -48,7 +48,7 @@ qcl template list
 ## 步骤 3：创建项目
 
 ```bash
-qcl app create --template=vue3 my-vue-app
+cocli app create --template=vue3 my-vue-app
 ```
 
 输出：
@@ -63,7 +63,7 @@ qcl app create --template=vue3 my-vue-app
 
 ```bash
 cd my-vue-app
-qcl addons list
+cocli addons list
 ```
 
 输出：
@@ -79,7 +79,7 @@ qcl addons list
 ## 步骤 5：查看插件详情
 
 ```bash
-qcl addons detail vue3-funs
+cocli addons detail vue3-funs
 ```
 
 输出：
@@ -116,7 +116,7 @@ vue3-funs
 ## 步骤 6：添加插件
 
 ```bash
-qcl addons add vue3-funs .
+cocli addons add vue3-funs .
 ```
 
 输出：
@@ -124,7 +124,7 @@ qcl addons add vue3-funs .
 ```
 正在下载 addon vue3-funs 到 D:\Projects\cocli\my-vue-app\addons\vue3-funs...
 ✅ Addons 添加成功！
-💡 提示: 使用 `qcl addons sync` 同步所有配置的插件
+💡 提示: 使用 `cocli addons sync` 同步所有配置的插件
 ```
 
 ## 步骤 7：查看项目结构
@@ -137,7 +137,7 @@ tree my-vue-app
 
 ```
 my-vue-app/
-  ├── .qclocal
+  ├── .cocliocal
   ├── addons/
   │   └── vue3-funs/
   │       ├── README.md
@@ -149,7 +149,7 @@ my-vue-app/
 
 ## 步骤 8：同步插件
 
-编辑 `.qclocal` 文件，添加插件到 `include` 列表：
+编辑 `.cocliocal` 文件，添加插件到 `include` 列表：
 
 ```yaml
 project: my-vue-app
@@ -163,7 +163,7 @@ addons:
 然后同步：
 
 ```bash
-qcl addons sync .
+cocli addons sync .
 ```
 
 ## 完成！

@@ -9,7 +9,7 @@
 ## 步骤 1：查看可用插件
 
 ```bash
-qcl addons list
+cocli addons list
 ```
 
 输出：
@@ -27,7 +27,7 @@ qcl addons list
 在添加插件前，先查看插件详情：
 
 ```bash
-qcl addons detail vue3-funs
+cocli addons detail vue3-funs
 ```
 
 输出：
@@ -48,7 +48,7 @@ vue3-funs
 
 ```bash
 cd my-app
-qcl addons add vue3-funs .
+cocli addons add vue3-funs .
 ```
 
 输出：
@@ -61,7 +61,7 @@ qcl addons add vue3-funs .
 ## 步骤 4：添加多个插件
 
 ```bash
-qcl addons add vue3-funs,add,minus .
+cocli addons add vue3-funs,add,minus .
 ```
 
 这会一次性添加三个插件。
@@ -89,7 +89,7 @@ addons/
 
 ## 步骤 6：配置自动同步
 
-编辑 `.qclocal` 文件：
+编辑 `.cocliocal` 文件：
 
 ```yaml
 project: my-app
@@ -104,10 +104,10 @@ addons:
 
 ## 步骤 7：同步插件
 
-使用 `qcl addons sync` 同步所有配置的插件：
+使用 `cocli addons sync` 同步所有配置的插件：
 
 ```bash
-qcl addons sync .
+cocli addons sync .
 ```
 
 输出：
@@ -137,23 +137,23 @@ import { minus, subtractMultiple } from './addons/minus/utils/math'
 ## 插件管理最佳实践
 
 1. **查看详情** - 添加前先查看插件详情
-2. **配置同步** - 在 `.qclocal` 中配置需要同步的插件
-3. **定期同步** - 使用 `qcl addons sync` 更新插件
-4. **版本控制** - 将 `.qclocal` 添加到版本控制，但不要提交插件目录
+2. **配置同步** - 在 `.cocliocal` 中配置需要同步的插件
+3. **定期同步** - 使用 `cocli addons sync` 更新插件
+4. **版本控制** - 将 `.cocliocal` 添加到版本控制，但不要提交插件目录
 
 ## 相关命令
 
 ```bash
 # 列出插件
-qcl addons list
+cocli addons list
 
 # 查看详情
-qcl addons detail <插件名>
+cocli addons detail <插件名>
 
 # 添加插件
-qcl addons add <插件列表> [项目目录]
+cocli addons add <插件列表> [项目目录]
 
 # 同步插件
-qcl addons sync [项目目录]
+cocli addons sync [项目目录]
 ```
 

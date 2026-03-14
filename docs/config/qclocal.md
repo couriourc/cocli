@@ -28,7 +28,7 @@ addons:
   # 插件安装目录（默认：./addons）
   target_dir: ./addons
   
-  # 当执行 qcl addons sync 时自动同步的插件列表
+  # 当执行 cocli addons sync 时自动同步的插件列表
   include:
     - addon-name
     - another-addon
@@ -53,7 +53,7 @@ inherit: true
 project: my-app
 ```
 
-如果不指定，`qcl app list` 会使用目录名称作为项目名称。
+如果不指定，`cocli app list` 会使用目录名称作为项目名称。
 
 ### template
 
@@ -90,7 +90,7 @@ addons:
     - minus
 ```
 
-执行 `qcl addons sync` 时会自动同步这些插件。
+执行 `cocli addons sync` 时会自动同步这些插件。
 
 ### repos
 
@@ -136,7 +136,7 @@ workspace/
 创建项目时，CoCli 会自动创建 `.qclocal` 文件：
 
 ```bash
-qcl app create --template=vue3 my-app
+cocli app create --template=vue3 my-app
 ```
 
 生成的 `.qclocal` 文件：
