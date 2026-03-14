@@ -1,5 +1,5 @@
 {
-  "name": "@couriourc/cocli",
+  "name": "cocli",
   "version": "0.1.0",
   "description": "CoCli 脚手架工具",
   "main": "index.js",
