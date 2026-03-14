@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "private": true,
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -20,14 +21,19 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.15.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/couriourc/cocli.git",
+    "directory": "apps/main"
+  },
   "dependencies": {
-    "turbo": "^2.8.16",
-    "cocli": "workspace:*"
+    "cocli-home": "github:couriourc/cocli",
+    "turbo": "^2.8.16"
   },
   "devDependencies": {
-    "vitepress": "^1.0.0",
-    "vitest": "^1.0.0",
+    "@types/node": "^20.0.0",
     "execa": "^8.0.0",
-    "@types/node": "^20.0.0"
+    "vitepress": "^1.0.0",
+    "vitest": "^1.0.0"
   }
 }

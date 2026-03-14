@@ -4,6 +4,23 @@
 
 ### 1. 更新 package.json
 
+**根目录 `package.json` 配置：**
+
+根目录的 `package.json` 已配置 `repository.directory: "apps/main"`，这样从 Git 安装时会自动使用 `apps/main/package.json` 作为包的配置。
+
+```json
+{
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/couriourc/cocli.git",
+    "directory": "apps/main"
+  }
+}
+```
+
+**`apps/main/package.json` 配置：**
+
 确保 `apps/main/package.json` 中的以下字段已正确配置：
 
 ```json
@@ -21,6 +38,11 @@
 ```
 
 将 `couriourc` 替换为你的 GitHub 用户名。
+
+**重要说明：**
+- 根目录的 `package.json` 设置为 `private: true`，防止意外发布
+- `repository.directory: "apps/main"` 确保从 Git 安装时使用 `apps/main/package.json`
+- 发布时只需要关注 `apps/main/` 目录的内容
 
 ### 2. 发布新版本
 
@@ -110,9 +132,11 @@ cargo build --release
 ## 注意事项
 
 - ⚠️ **本包通过 Git 分发，不需要发布到 npm registry**
-- ⚠️ 用户可以通过 `npm install -g git+https://github.com/couriourc/cocli.git#vx.x.x` 安装
+- ⚠️ 用户可以通过 `pnpm add git+https://github.com/couriourc/cocli.git` 安装
+- ⚠️ 从 Git 安装时会自动使用 `apps/main/package.json`（通过根目录的 `repository.directory` 配置）
 - ⚠️ 版本号必须遵循语义化版本（SemVer）
 - ⚠️ tag 名称必须以 `v` 开头（例如 `v1.0.0`）
 - ⚠️ 确保 `apps/main/package.json` 中的 `files` 字段包含所有需要发布的文件
 - ⚠️ GitHub Actions 会自动构建所有平台的二进制文件并创建 Release
+- ⚠️ 根目录的 `package.json` 设置为 `private: true`，不会被发布
 

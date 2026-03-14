@@ -8,6 +8,18 @@
 
 用户可以通过 `npm install -g git+https://github.com/couriourc/cocli.git` 安装。
 
+## 包结构说明
+
+本仓库是一个 monorepo，包含多个子项目：
+- `apps/main/` - 主 CLI 工具（这是实际发布的包）
+- `docs/` - 文档站点
+- 根目录 - 开发工具和配置
+
+**重要：** 根目录的 `package.json` 已配置 `repository.directory: "apps/main"`，这意味着：
+- 当用户执行 `pnpm add git+https://github.com/couriourc/cocli.git` 时
+- npm/pnpm 会自动识别并使用 `apps/main/package.json` 作为包的配置
+- 发布时只需要关注 `apps/main/` 目录的内容
+
 ## 发布方式
 
 ### 使用 Git Tags 发布版本
@@ -52,14 +64,17 @@ pnpm add -g git+https://github.com/couriourc/cocli.git#v0.1.0
 
 ## 包结构
 
-发布到 npm 的包包含：
+**实际发布的包位于 `apps/main/` 目录**，包含：
 - `bin/` - 可执行文件脚本和二进制文件
 - `README.md` - 包说明文档
+- `Cargo.toml` / `Cargo.lock` - Rust 构建配置（用于从源码构建）
+- `src/` - Rust 源代码（用于从源码构建）
 
-不包含：
-- `src/` - Rust 源代码
-- `Cargo.toml` / `Cargo.lock` - Rust 构建配置
-- `target/` - 构建产物（除了发布需要的二进制文件）
+**根目录的 `package.json` 配置：**
+- `private: true` - 防止意外发布根目录
+- `repository.directory: "apps/main"` - 指定实际包的位置
+
+这样配置后，从 Git 安装时会自动使用 `apps/main/package.json` 作为包的配置。
 
 ## 验证发布
 

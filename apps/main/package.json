@@ -9,8 +9,7 @@
   },
   "scripts": {
     "dev": "cargo run",
-    "build": "cargo build --release",
-    "postinstall": "pnpm build"
+    "build": "cargo build --release"
   },
   "keywords": [
     "cli",
