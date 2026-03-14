@@ -52,6 +52,9 @@ jobs:
     name: Publish to npm
     needs: build-all-platforms
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 需要创建 release 的权限
+      packages: write   # 如果需要发布到 npm
     
     steps:
       - name: Checkout code
