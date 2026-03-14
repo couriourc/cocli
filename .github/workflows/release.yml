@@ -1,0 +1,227 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 触发发布，例如 v1.0.0
+
+jobs:
+  build-all-platforms:
+    name: Build for all platforms
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            apps/main/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build Rust project
+        working-directory: apps/main
+        run: cargo build --release
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.os }}
+          path: |
+            apps/main/target/release/qcl*
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: build-all-platforms
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download Linux binary
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-ubuntu-latest
+          path: binaries/linux
+
+      - name: Download macOS binary
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-macos-latest
+          path: binaries/darwin
+
+      - name: Download Windows binary
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-windows-latest
+          path: binaries/win32
+
+      - name: Extract version from tag
+        id: get_version
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Tag version: $VERSION"
+
+      - name: Update package.json version
+        working-directory: apps/main
+        shell: bash
+        run: |
+          npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
+
+      - name: Prepare binaries for package
+        working-directory: apps/main
+        shell: bash
+        run: |
+          # 创建平台特定的目录结构
+          mkdir -p bin/linux bin/darwin bin/win32
+          
+          # 复制 Linux 二进制文件
+          if find ../../binaries/linux -name "qcl" -type f | head -1 | xargs -I {} cp {} bin/linux/qcl 2>/dev/null; then
+            chmod +x bin/linux/qcl
+            echo "✓ Linux 二进制文件已复制"
+          else
+            echo "⚠️  Linux 二进制文件未找到"
+          fi
+          
+          # 复制 macOS 二进制文件
+          if find ../../binaries/darwin -name "qcl" -type f | head -1 | xargs -I {} cp {} bin/darwin/qcl 2>/dev/null; then
+            chmod +x bin/darwin/qcl
+            echo "✓ macOS 二进制文件已复制"
+          else
+            echo "⚠️  macOS 二进制文件未找到"
+          fi
+          
+          # 复制 Windows 二进制文件
+          if find ../../binaries/win32 -name "qcl.exe" -type f | head -1 | xargs -I {} cp {} bin/win32/qcl.exe 2>/dev/null; then
+            echo "✓ Windows 二进制文件已复制"
+          else
+            echo "⚠️  Windows 二进制文件未找到"
+          fi
+          
+          # 验证文件是否存在
+          echo ""
+          echo "=== 准备的文件 ==="
+          ls -lh bin/linux/ 2>/dev/null || echo "❌ Linux 二进制文件未找到"
+          ls -lh bin/darwin/ 2>/dev/null || echo "❌ macOS 二进制文件未找到"
+          ls -lh bin/win32/ 2>/dev/null || echo "❌ Windows 二进制文件未找到"
+          
+          # 检查是否至少有一个文件存在
+          if [ ! -f bin/linux/qcl ] && [ ! -f bin/darwin/qcl ] && [ ! -f bin/win32/qcl.exe ]; then
+            echo "❌ 错误: 未找到任何二进制文件"
+            echo "Artifact 结构:"
+            find ../../binaries -type f 2>/dev/null | head -20
+            exit 1
+          fi
+
+      - name: Update qcl.js to support multiple platforms
+        working-directory: apps/main
+        shell: bash
+        run: |
+          cat > bin/qcl.js << 'EOF'
+          #!/usr/bin/env node
+          
+          const { spawn } = require('child_process');
+          const path = require('path');
+          const fs = require('fs');
+          const os = require('os');
+          
+          const platform = os.platform();
+          const isWindows = platform === 'win32';
+          
+          let binaryPath;
+          if (platform === 'linux') {
+            binaryPath = path.join(__dirname, 'linux', 'qcl');
+          } else if (platform === 'darwin') {
+            binaryPath = path.join(__dirname, 'darwin', 'qcl');
+          } else if (platform === 'win32') {
+            binaryPath = path.join(__dirname, 'win32', 'qcl.exe');
+          } else {
+            console.error(`不支持的平台: ${platform}`);
+            process.exit(1);
+          }
+          
+          if (!fs.existsSync(binaryPath)) {
+            console.error(`未找到二进制文件: ${binaryPath}`);
+            console.error('提示: 请先运行 pnpm build 构建二进制文件');
+            process.exit(1);
+          }
+          
+          const args = process.argv.slice(2);
+          const child = spawn(binaryPath, args, {
+            stdio: 'inherit',
+            shell: isWindows
+          });
+          
+          child.on('error', (error) => {
+            console.error(`执行错误: ${error.message}`);
+            process.exit(1);
+          });
+          
+          child.on('exit', (code) => {
+            process.exit(code || 0);
+          });
+          EOF
+          chmod +x bin/qcl.js
+
+      - name: Publish to npm
+        working-directory: apps/main
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --access public
+
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          # 复制所有二进制文件到 release-assets
+          find binaries -name "qcl*" -type f -exec cp {} release-assets/ \;
+          ls -la release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-assets/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

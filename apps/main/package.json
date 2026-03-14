@@ -1,0 +1,38 @@
+{
+  "name": "qcl",
+  "version": "0.1.0",
+  "description": "QCli 脚手架工具",
+  "main": "index.js",
+  "bin": {
+    "qcl": "./bin/qcl.js"
+  },
+  "scripts": {
+    "dev": "cargo run",
+    "build": "cargo build --release",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "cli",
+    "scaffold",
+    "template",
+    "generator"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.15.0",
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/couriourc/qcli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/couriourc/qcli/issues"
+  },
+  "homepage": "https://github.com/couriourc/qcli#readme",
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}

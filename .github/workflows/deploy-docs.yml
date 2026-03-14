@@ -1,0 +1,87 @@
+name: Deploy VitePress Docs to GitHub Pages
+
+on:
+  # 在推送到 main 分支时触发
+  push:
+    branches:
+      - main
+      - master
+    # 只监听 docs 目录的变化
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-docs.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  
+  # 允许手动触发
+  workflow_dispatch:
+
+# 设置 GITHUB_TOKEN 的权限，允许部署到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许一个并发部署
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史记录，用于 lastmod
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.0
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Set base path
+        id: base-path
+        run: |
+          if [[ "${{ github.repository }}" == *".github.io" ]]; then
+            echo "base=/" >> $GITHUB_OUTPUT
+          else
+            REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+            echo "base=/$REPO_NAME/" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build with VitePress
+        run: pnpm docs:build
+        env:
+          # 如果仓库名不是 username.github.io，需要设置 base 路径
+          # 例如：如果仓库名是 qcli，则设置为 /qcli/
+          # 如果部署到 username.github.io，则不需要设置（默认为 /）
+          VITEPRESS_BASE: ${{ steps.base-path.outputs.base }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
