@@ -43,6 +43,12 @@ export default defineConfig({
             { text: '模板', link: '/guide/template' },
             { text: '插件', link: '/guide/addons' }
           ]
+        },
+        {
+          text: '高级',
+          items: [
+            { text: '仓库源搭建', link: '/guide/repository-setup' }
+          ]
         }
       ],
       '/commands/': [

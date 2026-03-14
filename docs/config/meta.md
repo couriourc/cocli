@@ -19,6 +19,8 @@ my-repo/
 
 ## 文件格式
 
+`meta.yaml` 是一个 YAML 格式的文件，包含两个主要部分：`templates` 和 `addons`。
+
 ```yaml
 # 模板定义
 templates:
@@ -51,6 +53,120 @@ addons:
   vue3-funs:
     root: ./addons/vue3-funs/**
 ```
+
+## 字段说明
+
+### 顶层字段
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `templates` | `object` | 否 | 模板定义映射，键为模板名称，值为模板配置 |
+| `addons` | `object` | 否 | 插件定义映射，键为插件名称，值为插件配置 |
+
+**注意：** `templates` 和 `addons` 至少需要存在一个，否则仓库将没有可用的模板或插件。
+
+### templates 字段
+
+`templates` 是一个对象（映射），其中：
+
+- **键（Key）**：模板名称，用于在 `cocli app create --template=<名称>` 中引用
+- **值（Value）**：模板配置对象，包含以下字段：
+
+#### TemplateConfig 字段
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `root` | `string \| array<string>` | 是 | 模板根路径，可以是单个路径字符串或路径数组。支持 Glob 模式 |
+
+**示例：**
+
+```yaml
+templates:
+  # 单个路径（字符串）
+  react:
+    root: packages/react
+  
+  # 单个路径（Glob 模式）
+  vue3:
+    root: packages/vue3/**
+  
+  # 多个路径（数组）
+  vue2:
+    root:
+      - packages/vue2/**
+      - packages/vue2-cli/**
+```
+
+### addons 字段
+
+`addons` 是一个对象（映射），其中：
+
+- **键（Key）**：插件名称，用于在 `cocli addons add <名称>` 中引用
+- **值（Value）**：插件配置对象，包含以下字段：
+
+#### AddonConfig 字段
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `root` | `string \| array<string>` | 是 | 插件根路径，可以是单个路径字符串或路径数组。支持 Glob 模式 |
+
+**示例：**
+
+```yaml
+addons:
+  # 单个路径（Glob 模式）
+  add:
+    root: ./addons/add/**
+  
+  # 多个路径（数组）
+  vue3-funs:
+    root:
+      - ./addons/vue3-funs/**
+      - ./addons/vue3-utils/**
+```
+
+### root 字段详解
+
+`root` 字段支持两种格式：
+
+1. **字符串格式**：单个路径
+   ```yaml
+   root: packages/react/**
+   ```
+
+2. **数组格式**：多个路径
+   ```yaml
+   root:
+     - packages/vue2/**
+     - packages/vue2-cli/**
+   ```
+
+#### root 路径规则
+
+- **相对路径**：相对于仓库根目录
+  ```yaml
+  root: templates/vue3/**
+  ```
+
+- **绝对路径**：从仓库根目录开始（以 `/` 开头）
+  ```yaml
+  root: /templates/vue3/**
+  ```
+
+- **Glob 模式支持**：
+  - `**` - 递归匹配所有文件和目录
+  - `*` - 匹配单个目录层级
+  - `?` - 匹配单个字符
+
+**路径示例：**
+
+| 路径 | 说明 |
+|------|------|
+| `packages/react` | 匹配 `packages/react` 目录（不递归） |
+| `packages/react/**` | 匹配 `packages/react/` 下的所有内容（递归） |
+| `packages/react/*` | 匹配 `packages/react/` 下的直接子项（不递归） |
+| `./addons/add/**` | 匹配 `addons/add/` 下的所有内容 |
+| `/templates/vue3/**` | 从仓库根目录开始的绝对路径 |
 
 ## 模板定义
 
@@ -185,6 +301,39 @@ addons:
     root: ./addons/vue3-funs/**
 ```
 
+## 快速创建仓库
+
+CoCli 提供了便捷的命令来创建和初始化仓库：
+
+### 创建新仓库
+
+```bash
+# 在当前目录创建新仓库
+cocli repo create my-repo
+
+# 在指定路径创建仓库
+cocli repo create my-repo --path /path/to/repo
+```
+
+这个命令会：
+- 创建仓库目录结构（`templates/` 和 `addons/` 目录）
+- 创建空的 `meta.yaml` 文件
+- 创建 `README.md` 文件
+
+### 初始化现有目录为仓库
+
+```bash
+# 在当前目录初始化仓库
+cocli repo init
+
+# 在指定路径初始化仓库
+cocli repo init --path /path/to/existing/dir
+```
+
+这个命令会：
+- 在当前目录创建 `meta.yaml` 文件（如果不存在）
+- 创建基本的目录结构（如果不存在）
+
 ## 快速创建模板和插件
 
 CoCli 提供了便捷的命令来创建模板和插件，无需手动编辑 `meta.yaml`：
@@ -198,6 +347,9 @@ cocli template create vue3
 
 # 指定模板路径
 cocli template create react --path packages/react
+
+# 指定仓库目录
+cocli template create vue3 --repo-dir /path/to/repo
 ```
 
 ### 创建插件
@@ -209,6 +361,9 @@ cocli addons create my-plugin
 
 # 指定插件路径
 cocli addons create vue3-utils --path addons/vue3-utils
+
+# 指定仓库目录
+cocli addons create my-plugin --repo-dir /path/to/repo
 ```
 
 这些命令会自动：

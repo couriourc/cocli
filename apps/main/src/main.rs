@@ -160,6 +160,16 @@ async fn main() -> Result<()> {
                 }
             }
         }
+        commands::Commands::Repo(cmd) => {
+            match cmd {
+                commands::RepoCommands::Create(args) => {
+                    commands::handle_repo_create(args).await?;
+                }
+                commands::RepoCommands::Init(args) => {
+                    commands::handle_repo_init(args).await?;
+                }
+            }
+        }
         commands::Commands::Init(args) => {
             commands::handle_init(args).await?;
         }
