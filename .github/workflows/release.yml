@@ -65,6 +65,12 @@ jobs:
       - name: Build binary (using cross for ARM64)
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         working-directory: apps/main
+        env:
+          # 为 cross 交叉编译配置 OpenSSL
+          # git2 和 native-tls 的 vendored 特性应该会自动处理
+          # 但设置这些环境变量可以确保交叉编译正常工作
+          OPENSSL_STATIC: "1"
+          PKG_CONFIG_ALLOW_CROSS: "1"
         run: |
           cross build --release --target ${{ matrix.target }}
 
