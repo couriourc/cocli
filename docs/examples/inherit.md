@@ -10,18 +10,18 @@
 
 ```
 workspace/
-  ├── .coclirc              # 工作区配置文件
+  ├── .qclrc              # 工作区配置文件
   ├── project1/
-  │   └── .cocliocal        # inherit: true
+  │   └── .qclocal        # inherit: true
   ├── project2/
-  │   └── .cocliocal        # inherit: true
+  │   └── .qclocal        # inherit: true
   └── project3/
-      └── .cocliocal        # 自己的 repos 配置
+      └── .qclocal        # 自己的 repos 配置
 ```
 
 ## 步骤 1：创建工作区配置
 
-在工作区根目录创建 `.coclirc`：
+在工作区根目录创建 `.qclrc`：
 
 ```yaml
 repos:
@@ -46,7 +46,7 @@ cd workspace
 cocli app create --template=vue3 project1
 ```
 
-编辑 `project1/.cocliocal`：
+编辑 `project1/.qclocal`：
 
 ```yaml
 project: project1
@@ -66,7 +66,7 @@ inherit: true  # 继承父级配置
 cocli app create --template=react project2
 ```
 
-编辑 `project2/.cocliocal`：
+编辑 `project2/.qclocal`：
 
 ```yaml
 project: project2
@@ -86,7 +86,7 @@ inherit: true  # 继承父级配置
 cocli app create --template=vue3 project3
 ```
 
-编辑 `project3/.cocliocal`：
+编辑 `project3/.qclocal`：
 
 ```yaml
 project: project3
@@ -108,8 +108,8 @@ inherit: false
 由于设置了 `inherit: true` 且 `repos` 为空：
 
 1. 首先查找项目自己的 `repos`（为空）
-2. 向上查找父级目录的 `.coclirc`
-3. 找到 `workspace/.coclirc`，使用其 `repos` 配置
+2. 向上查找父级目录的 `.qclrc`
+3. 找到 `workspace/.qclrc`，使用其 `repos` 配置
 
 ### Project 3
 
@@ -143,14 +143,14 @@ cocli addons list  # 使用自己的 repos 配置
 
 ## 最佳实践
 
-1. **工作区配置** - 在工作区根目录配置 `.coclirc`
+1. **工作区配置** - 在工作区根目录配置 `.qclrc`
 2. **项目继承** - 项目使用 `inherit: true` 继承配置
 3. **特殊覆盖** - 特殊项目可以覆盖继承的配置
 4. **文档说明** - 在 README 中说明配置继承关系
 
 ## 相关文档
 
-- [`.cocliocal` 配置](/config/cocliocal)
+- [`.qclocal` 配置](/config/qclocal)
 - [工作区管理](/guide/workspace)
 - [配置优先级](/config/)
 
