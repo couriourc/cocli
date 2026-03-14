@@ -1,10 +1,10 @@
 # 创建 Vue 项目示例
 
-本示例演示如何使用 QCli 创建一个 Vue 3 项目并添加插件。
+本示例演示如何使用 CoCli 创建一个 Vue 3 项目并添加插件。
 
 ## 步骤 1：初始化配置
 
-首先，初始化 QCli 配置：
+首先，初始化 CoCli 配置：
 
 ```bash
 qcl init
@@ -13,7 +13,7 @@ qcl init
 交互式配置：
 
 ```
-🔧 初始化 QCli 配置文件
+🔧 初始化 CoCli 配置文件
 按 Enter 跳过可选配置项
 
 全局用户名（可选，按 Enter 跳过）: 
@@ -24,12 +24,12 @@ qcl init
 添加仓库配置（输入 'done' 完成）:
 
 仓库类型 (local/github/gitlab/ftp，或 'done' 完成): local
-本地路径: D:/Projects/qcli/.test
+本地路径: D:/Projects/cocli/.test
 ✓ 已添加本地仓库
 
 仓库类型 (local/github/gitlab/ftp，或 'done' 完成): done
 
-✅ 配置文件已创建: D:\Projects\qcli\.qclrc
+✅ 配置文件已创建: D:\Projects\cocli\.qclrc
 ```
 
 ## 步骤 2：查看可用模板
@@ -86,7 +86,7 @@ qcl addons detail vue3-funs
 
 ```
 vue3-funs
-  来源: D:/Projects/qcli/.test
+  来源: D:/Projects/cocli/.test
   路径配置:
     - ./addons/vue3-funs/**
   详细信息:
@@ -122,7 +122,7 @@ qcl addons add vue3-funs .
 输出：
 
 ```
-正在下载 addon vue3-funs 到 D:\Projects\qcli\my-vue-app\addons\vue3-funs...
+正在下载 addon vue3-funs 到 D:\Projects\cocli\my-vue-app\addons\vue3-funs...
 ✅ Addons 添加成功！
 💡 提示: 使用 `qcl addons sync` 同步所有配置的插件
 ```

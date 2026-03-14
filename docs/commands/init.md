@@ -50,7 +50,7 @@ qcl init -f ~/.qclrc
 
 ```bash
 $ qcl init
-🔧 初始化 QCli 配置文件
+🔧 初始化 CoCli 配置文件
 按 Enter 跳过可选配置项
 
 全局用户名（可选，按 Enter 跳过）: myuser
@@ -66,7 +66,7 @@ $ qcl init
 
 仓库类型 (local/github/gitlab/ftp，或 'done' 完成): done
 
-✅ 配置文件已创建: D:\Projects\qcli\.qclrc
+✅ 配置文件已创建: D:\Projects\cocli\.qclrc
 💡 提示: 你可以随时编辑此文件来修改配置
 ```
 

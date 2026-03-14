@@ -27,7 +27,7 @@ workspace/
 repos:
   - local:
       type: local
-      url: D:/Projects/qcli/.test
+      url: D:/Projects/cocli/.test
   
   - github:
       type: git

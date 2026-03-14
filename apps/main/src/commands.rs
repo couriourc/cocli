@@ -6,8 +6,8 @@ use std::fs;
 use chrono::Utc;
 
 #[derive(Parser)]
-#[command(name = "qcl")]
-#[command(about = "QCli 脚手架工具", long_about = None)]
+#[command(name = "cocli")]
+#[command(about = "CoCli 脚手架工具", long_about = None)]
 #[command(disable_help_subcommand = true)]
 pub struct Cli {
     #[command(subcommand)]
@@ -38,7 +38,7 @@ pub enum Commands {
     Init(InitArgs),
     /// 显示帮助信息
     Help(HelpArgs),
-    /// 创建新项目（已废弃，请使用 `qcl app create`）
+    /// 创建新项目（已废弃，请使用 `cocli app create`）
     #[command(hide = true)]
     Create(CreateArgs),
 }
@@ -364,7 +364,7 @@ pub async fn handle_init(args: InitArgs) -> anyhow::Result<()> {
     };
     
     if !args.yes {
-        println!("🔧 初始化 QCli 配置文件");
+        println!("🔧 初始化 CoCli 配置文件");
         println!("按 Enter 跳过可选配置项\n");
         
         // 询问全局认证信息
@@ -864,7 +864,7 @@ pub async fn handle_ai_chat(args: AiChatArgs) -> anyhow::Result<()> {
         println!("{}", response);
     } else {
         eprintln!("⚠️  AI 功能未配置。请在配置文件中添加 AI 配置。");
-        eprintln!("💡 提示: 使用 `qcl config set ai.mcp.server_url <URL>` 配置 MCP 服务器");
+        eprintln!("💡 提示: 使用 `cocli config set ai.mcp.server_url <URL>` 配置 MCP 服务器");
     }
     
     Ok(())
@@ -955,7 +955,7 @@ pub async fn handle_skills_list() -> anyhow::Result<()> {
     
     if skills.is_empty() {
         println!("没有可用的 Skills");
-        println!("💡 提示: 使用 `qcl ai skills create <name>` 创建新 Skill");
+        println!("💡 提示: 使用 `cocli ai skills create <name>` 创建新 Skill");
     } else {
         println!("可用的 Skills:");
         for skill in skills {

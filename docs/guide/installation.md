@@ -1,6 +1,6 @@
 # 安装
 
-QCli 可以通过多种方式安装。
+CoCli 可以通过多种方式安装。
 
 ## 使用包管理器安装
 
@@ -54,8 +54,8 @@ pnpm dlx qcl@latest app create --template=vue3 my-app
 1. **克隆仓库**
 
    ```bash
-   git clone https://github.com/couriourc/qcli.git
-   cd qcli
+   git clone https://github.com/couriourc/cocli.git
+   cd cocli
    ```
 
 2. **安装依赖**

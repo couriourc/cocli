@@ -184,6 +184,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3e64b0cc0439b12df2fa678eae89a1c56a529fd067a9115f7827f1fffd22b32"
 
 [[package]]
+name = "cocli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "dirs",
+ "fs_extra",
+ "git2",
+ "glob",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "suppaftp",
+ "tokio",
+ "tokio-stream",
+ "url",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1056,27 +1077,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "qcl"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "clap",
- "dirs",
- "fs_extra",
- "git2",
- "glob",
- "reqwest",
- "serde",
- "serde_json",
- "serde_yaml",
- "suppaftp",
- "tokio",
- "tokio-stream",
- "url",
 ]
 
 [[package]]

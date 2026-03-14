@@ -96,9 +96,9 @@ impl SmartSuggest {
             if suggestions.is_empty() {
                 String::new()
             } else {
-                format!("\n提示: `qcl {}` 的子命令可能是：\n  {}", 
+                format!("\n提示: `cocli {}` 的子命令可能是：\n  {}", 
                     parent,
-                    suggestions.iter().map(|s| format!("qcl {} {}", parent, s)).collect::<Vec<_>>().join("\n  "))
+                    suggestions.iter().map(|s| format!("cocli {} {}", parent, s)).collect::<Vec<_>>().join("\n  "))
             }
         } else {
             String::new()
@@ -109,16 +109,16 @@ impl SmartSuggest {
     pub fn generate_usage_hint() -> String {
         r#"
 常用命令：
-  qcl app create --template=<模板名> <项目名>  创建新项目
-  qcl app list                                 列出应用
-  qcl template list                           列出模板
-  qcl addons list [-v]                         列出插件
-  qcl addons detail <插件名>                   查看插件详情
-  qcl addons add <插件列表> [项目目录]         添加插件
-  qcl workspace create <名称> [路径]           创建工作区
-  qcl workspace list                            列出工作区
+  cocli app create --template=<模板名> <项目名>  创建新项目
+  cocli app list                                 列出应用
+  cocli template list                           列出模板
+  cocli addons list [-v]                         列出插件
+  cocli addons detail <插件名>                   查看插件详情
+  cocli addons add <插件列表> [项目目录]         添加插件
+  cocli workspace create <名称> [路径]           创建工作区
+  cocli workspace list                            列出工作区
 
-更多信息请使用: qcl --help
+更多信息请使用: cocli --help
 "#.to_string()
     }
 }

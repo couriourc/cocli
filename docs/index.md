@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: QCli
+  name: CoCli
   text: 脚手架工具
   tagline: 一个灵活、强大的项目脚手架工具，支持从多种来源获取模板和插件
   image:
     src: /logo.png
-    alt: QCli
+    alt: CoCli
   actions:
     - theme: brand
       text: 快速开始
@@ -17,7 +17,7 @@ hero:
       link: /commands/
     - theme: alt
       text: GitHub
-      link: https://github.com/couriourc/qcli
+      link: https://github.com/couriourc/cocli
 
 features:
   - icon: 🚀

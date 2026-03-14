@@ -1,0 +1,22 @@
+# 源代码（不需要发布）
+src/
+Cargo.toml
+Cargo.lock
+
+# 开发文件
+node_modules/
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# 构建产物（debug 版本不需要）
+target/debug/
+
+# 其他
+*.swp
+*.swo
+*~
+.env
+.env.local
+

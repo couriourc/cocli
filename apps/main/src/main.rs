@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
                 eprintln!("{}", suggest::SmartSuggest::generate_usage_hint());
             } else {
                 eprintln!("❌ {}", error_msg);
-                eprintln!("\n💡 提示: 使用 `qcl --help` 查看所有可用命令");
+                eprintln!("\n💡 提示: 使用 `cocli --help` 查看所有可用命令");
             }
             
             std::process::exit(1);
@@ -162,7 +162,7 @@ async fn main() -> Result<()> {
         }
         commands::Commands::Create(args) => {
             // 向后兼容：显示警告并使用新的命令
-            eprintln!("警告: `qcl create` 已废弃，请使用 `qcl app create`");
+            eprintln!("警告: `cocli create` 已废弃，请使用 `cocli app create`");
             commands::handle_create(args).await?;
         }
     }

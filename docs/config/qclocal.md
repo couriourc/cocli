@@ -133,7 +133,7 @@ workspace/
 
 ## 自动创建
 
-创建项目时，QCli 会自动创建 `.qclocal` 文件：
+创建项目时，CoCli 会自动创建 `.qclocal` 文件：
 
 ```bash
 qcl app create --template=vue3 my-app

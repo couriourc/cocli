@@ -1,6 +1,6 @@
 # AI 命令
 
-QCli 集成了 MCP (Model Context Protocol) 和 Skills 功能，提供强大的 AI 能力来辅助项目开发。
+CoCli 集成了 MCP (Model Context Protocol) 和 Skills 功能，提供强大的 AI 能力来辅助项目开发。
 
 ## 目录
 

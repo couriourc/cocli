@@ -1,6 +1,6 @@
 # 初始化配置
 
-QCli 使用配置文件来管理仓库和认证信息。你可以使用 `qcl init` 命令快速创建配置文件。
+CoCli 使用配置文件来管理仓库和认证信息。你可以使用 `qcl init` 命令快速创建配置文件。
 
 ## 基本用法
 
@@ -52,7 +52,7 @@ qcl init -f /path/to/config.yaml
 
 ## 配置文件位置
 
-QCli 会按以下优先级查找配置文件：
+CoCli 会按以下优先级查找配置文件：
 
 1. 当前工作目录：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
 2. 用户主目录：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`

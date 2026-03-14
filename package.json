@@ -1,5 +1,5 @@
 {
-  "name": "qcli",
+  "name": "cocli-home",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,14 +9,15 @@
     "build": "turbo build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "release": "turbo run release"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.15.0",
   "dependencies": {
-    "qcl": "workspace:*",
+    "cocli": "workspace:*",
     "turbo": "^2.8.16"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-# QCli
+# CoCli
 
 一个灵活、强大的项目脚手架工具，支持从多种来源获取模板和插件。
 
@@ -18,28 +18,34 @@
 
 ## 📦 安装
 
-### 使用 pnpm（推荐）
+### 从 Git 安装（推荐）
 
 ```bash
-# 全局安装
-pnpm add -g qcl
+# 使用 pnpm 从 Git 安装
+pnpm add -g git+https://github.com/couriourc/cocli.git
 
-# 或使用 dlx 直接运行
-pnpm dlx qcl@latest <command>
+# 或安装特定版本（使用 git tag）
+pnpm add -g git+https://github.com/couriourc/cocli.git#v0.1.0
+
+# 使用 npm 从 Git 安装
+npm install -g git+https://github.com/couriourc/cocli.git
+
+# 或安装特定版本
+npm install -g git+https://github.com/couriourc/cocli.git#v0.1.0
 ```
 
-### 使用 npm
+### 使用 yarn
 
 ```bash
-npm install -g qcl
+yarn global add git+https://github.com/couriourc/cocli.git
 ```
 
 ### 从源码构建
 
 ```bash
 # 克隆仓库
-git clone https://github.com/couriourc/qcli.git
-cd qcli
+git clone https://github.com/couriourc/cocli.git
+cd cocli
 
 # 安装依赖
 pnpm install
@@ -57,7 +63,7 @@ cargo run -- --help
 ### 1. 初始化配置
 
 ```bash
-qcl init
+cocli init
 ```
 
 这将引导你完成配置文件的创建，包括：
@@ -67,34 +73,34 @@ qcl init
 或使用非交互模式快速创建默认配置：
 
 ```bash
-qcl init -y
+cocli init -y
 ```
 
 ### 2. 创建你的第一个项目
 
 ```bash
 # 查看可用模板
-qcl template list
+cocli template list
 
 # 创建项目
-qcl app create --template=vue3 my-first-app
+cocli app create --template=vue3 my-first-app
 
 # 查看项目列表
-qcl app list
+cocli app list
 ```
 
 ### 3. 添加插件
 
 ```bash
 # 查看可用插件
-qcl addons list
+cocli addons list
 
 # 查看插件详情
-qcl addons detail vue3-funs
+cocli addons detail vue3-funs
 
 # 添加插件到项目
 cd my-first-app
-qcl addons add vue3-funs .
+cocli addons add vue3-funs .
 ```
 
 ## 📖 主要命令
@@ -103,94 +109,94 @@ qcl addons add vue3-funs .
 
 ```bash
 # 创建新工作区
-qcl workspace create <name> [path]
+cocli workspace create <name> [path]
 
 # 列出所有工作区
-qcl workspace list
+cocli workspace list
 
 # 切换到指定工作区
-qcl workspace use <name>
+cocli workspace use <name>
 
 # 显示当前工作区
-qcl workspace current
+cocli workspace current
 
 # 删除工作区
-qcl workspace delete <name>
+cocli workspace delete <name>
 ```
 
 ### 应用管理
 
 ```bash
 # 创建新项目
-qcl app create --template=<template> <name>
+cocli app create --template=<template> <name>
 
 # 列出当前工作区的应用
-qcl app list
+cocli app list
 ```
 
 ### 模板管理
 
 ```bash
 # 列出所有可用模板
-qcl template list
+cocli template list
 ```
 
 ### 插件管理
 
 ```bash
 # 列出所有可用插件
-qcl addons list [--source=<source>]
+cocli addons list [--source=<source>]
 
 # 查看插件详情
-qcl addons detail <name>
+cocli addons detail <name>
 
 # 添加插件到项目
-qcl addons add <name> <path>
+cocli addons add <name> <path>
 
 # 同步插件
-qcl addons sync <path>
+cocli addons sync <path>
 ```
 
 ### 配置管理
 
 ```bash
 # 获取配置值
-qcl config get <key>
+cocli config get <key>
 
 # 设置配置值
-qcl config set <key> <value>
+cocli config set <key> <value>
 
 # 列出所有配置
-qcl config list
+cocli config list
 ```
 
 ### AI 功能
 
 ```bash
 # AI 聊天
-qcl ai chat [message]
+cocli ai chat [message]
 
 # AI 建议
-qcl ai suggest [context]
+cocli ai suggest [context]
 
 # 查看可用工具
-qcl ai tools
+cocli ai tools
 
 # 查看资源
-qcl ai resources
+cocli ai resources
 
 # 技能管理
-qcl ai skills list
-qcl ai skills show <name>
-qcl ai skills execute <name> [args...]
-qcl ai skills create <name>
-qcl ai skills delete <name>
+cocli ai skills list
+cocli ai skills show <name>
+cocli ai skills execute <name> [args...]
+cocli ai skills create <name>
+cocli ai skills delete <name>
 ```
 
 ## 📁 项目结构
 
 ```
-qcli/
+coclii/
 ├── apps/
 │   └── main/              # 主应用（Rust）
 │       ├── src/
@@ -304,10 +310,10 @@ pnpm docs:dev
 
 如果你有任何问题或建议，请：
 
-- 提交 [Issue](https://github.com/couriourc/qcli/issues)
-- 开启 [Discussion](https://github.com/couriourc/qcli/discussions)
+- 提交 [Issue](https://github.com/couriourc/coclii/issues)
+- 开启 [Discussion](https://github.com/couriourc/coclii/discussions)
 
 ---
 
-Made with ❤️ by the QCli team
+Made with ❤️ by the CoCli team
 

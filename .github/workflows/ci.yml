@@ -59,9 +59,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
-            test -f target/release/qcl.exe || exit 1
+            test -f target/release/cocli.exe || exit 1
           else
-            test -f target/release/qcl || exit 1
+            test -f target/release/cocli || exit 1
           fi
 
       - name: Test binary
@@ -69,8 +69,8 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
-            ./target/release/qcl.exe --help || exit 1
+            ./target/release/cocli.exe --help || exit 1
           else
-            ./target/release/qcl --help || exit 1
+            ./target/release/cocli --help || exit 1
           fi
 

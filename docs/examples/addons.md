@@ -34,7 +34,7 @@ qcl addons detail vue3-funs
 
 ```
 vue3-funs
-  来源: D:/Projects/qcli/.test
+  来源: D:/Projects/cocli/.test
   路径配置:
     - ./addons/vue3-funs/**
   详细信息:
@@ -54,7 +54,7 @@ qcl addons add vue3-funs .
 输出：
 
 ```
-正在下载 addon vue3-funs 到 D:\Projects\qcli\my-app\addons\vue3-funs...
+正在下载 addon vue3-funs 到 D:\Projects\cocli\my-app\addons\vue3-funs...
 ✅ Addons 添加成功！
 ```
 
@@ -113,9 +113,9 @@ qcl addons sync .
 输出：
 
 ```
-正在同步 addon vue3-funs 到 D:\Projects\qcli\my-app\addons\vue3-funs...
-正在同步 addon add 到 D:\Projects\qcli\my-app\addons\add...
-正在同步 addon minus 到 D:\Projects\qcli\my-app\addons\minus...
+正在同步 addon vue3-funs 到 D:\Projects\cocli\my-app\addons\vue3-funs...
+正在同步 addon add 到 D:\Projects\cocli\my-app\addons\add...
+正在同步 addon minus 到 D:\Projects\cocli\my-app\addons\minus...
 ✅ Addons 同步成功！
 ```
 

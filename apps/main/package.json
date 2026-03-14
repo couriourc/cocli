@@ -1,15 +1,16 @@
 {
-  "name": "qcl",
+  "name": "@couriourc/cocli",
   "version": "0.1.0",
-  "description": "QCli 脚手架工具",
+  "description": "CoCli 脚手架工具",
   "main": "index.js",
+  "private": false,
   "bin": {
-    "qcl": "./bin/qcl.js"
+    "cocli": "./bin/cocli.js"
   },
   "scripts": {
     "dev": "cargo run",
     "build": "cargo build --release",
-    "prepublishOnly": "pnpm build"
+    "postinstall": "pnpm build"
   },
   "keywords": [
     "cli",
@@ -17,7 +18,7 @@
     "template",
     "generator"
   ],
-  "author": "",
+  "author": "couriourc",
   "license": "ISC",
   "packageManager": "pnpm@10.15.0",
   "files": [
@@ -26,12 +27,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/couriourc/qcli.git"
+    "url": "git+https://github.com/couriourc/cocli.git"
   },
   "bugs": {
-    "url": "https://github.com/couriourc/qcli/issues"
+    "url": "https://github.com/couriourc/cocli/issues"
   },
-  "homepage": "https://github.com/couriourc/qcli#readme",
+  "homepage": "https://github.com/couriourc/cocli#readme",
   "devDependencies": {
     "vitepress": "^1.6.4"
   }

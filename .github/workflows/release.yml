@@ -44,7 +44,7 @@ jobs:
         with:
           name: binary-${{ matrix.os }}
           path: |
-            apps/main/target/release/qcl*
+            apps/main/target/release/cocli*
           retention-days: 7
           if-no-files-found: error
 
@@ -112,23 +112,23 @@ jobs:
           mkdir -p bin/linux bin/darwin bin/win32
           
           # 复制 Linux 二进制文件
-          if find ../../binaries/linux -name "qcl" -type f | head -1 | xargs -I {} cp {} bin/linux/qcl 2>/dev/null; then
-            chmod +x bin/linux/qcl
+          if find ../../binaries/linux -name "cocli" -type f | head -1 | xargs -I {} cp {} bin/linux/cocli 2>/dev/null; then
+            chmod +x bin/linux/cocli
             echo "✓ Linux 二进制文件已复制"
           else
             echo "⚠️  Linux 二进制文件未找到"
           fi
           
           # 复制 macOS 二进制文件
-          if find ../../binaries/darwin -name "qcl" -type f | head -1 | xargs -I {} cp {} bin/darwin/qcl 2>/dev/null; then
-            chmod +x bin/darwin/qcl
+          if find ../../binaries/darwin -name "cocli" -type f | head -1 | xargs -I {} cp {} bin/darwin/cocli 2>/dev/null; then
+            chmod +x bin/darwin/cocli
             echo "✓ macOS 二进制文件已复制"
           else
             echo "⚠️  macOS 二进制文件未找到"
           fi
           
           # 复制 Windows 二进制文件
-          if find ../../binaries/win32 -name "qcl.exe" -type f | head -1 | xargs -I {} cp {} bin/win32/qcl.exe 2>/dev/null; then
+          if find ../../binaries/win32 -name "cocli.exe" -type f | head -1 | xargs -I {} cp {} bin/win32/cocli.exe 2>/dev/null; then
             echo "✓ Windows 二进制文件已复制"
           else
             echo "⚠️  Windows 二进制文件未找到"
@@ -142,18 +142,18 @@ jobs:
           ls -lh bin/win32/ 2>/dev/null || echo "❌ Windows 二进制文件未找到"
           
           # 检查是否至少有一个文件存在
-          if [ ! -f bin/linux/qcl ] && [ ! -f bin/darwin/qcl ] && [ ! -f bin/win32/qcl.exe ]; then
+          if [ ! -f bin/linux/cocli ] && [ ! -f bin/darwin/cocli ] && [ ! -f bin/win32/cocli.exe ]; then
             echo "❌ 错误: 未找到任何二进制文件"
             echo "Artifact 结构:"
             find ../../binaries -type f 2>/dev/null | head -20
             exit 1
           fi
 
-      - name: Update qcl.js to support multiple platforms
+      - name: Update cocli.js to support multiple platforms
         working-directory: apps/main
         shell: bash
         run: |
-          cat > bin/qcl.js << 'EOF'
+          cat > bin/cocli.js << 'EOF'
           #!/usr/bin/env node
           
           const { spawn } = require('child_process');
@@ -166,11 +166,11 @@ jobs:
           
           let binaryPath;
           if (platform === 'linux') {
-            binaryPath = path.join(__dirname, 'linux', 'qcl');
+            binaryPath = path.join(__dirname, 'linux', 'cocli');
           } else if (platform === 'darwin') {
-            binaryPath = path.join(__dirname, 'darwin', 'qcl');
+            binaryPath = path.join(__dirname, 'darwin', 'cocli');
           } else if (platform === 'win32') {
-            binaryPath = path.join(__dirname, 'win32', 'qcl.exe');
+            binaryPath = path.join(__dirname, 'win32', 'cocli.exe');
           } else {
             console.error(`不支持的平台: ${platform}`);
             process.exit(1);
@@ -197,21 +197,14 @@ jobs:
             process.exit(code || 0);
           });
           EOF
-          chmod +x bin/qcl.js
-
-      - name: Publish to npm
-        working-directory: apps/main
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm publish --access public
+          chmod +x bin/cocli.js
 
       - name: Prepare release assets
         shell: bash
         run: |
           mkdir -p release-assets
           # 复制所有二进制文件到 release-assets
-          find binaries -name "qcl*" -type f -exec cp {} release-assets/ \;
+          find binaries -name "cocli*" -type f -exec cp {} release-assets/ \;
           ls -la release-assets/
 
       - name: Create GitHub Release

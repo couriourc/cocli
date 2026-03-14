@@ -28,7 +28,7 @@ qcl workspace create frontend-workspace .
 repos:
   - local:
       type: local
-      url: D:/Projects/qcli/.test
+      url: D:/Projects/cocli/.test
 ```
 
 ## 步骤 3：创建项目
@@ -117,7 +117,7 @@ qcl workspace current
 
 ```
 当前工作区: frontend-workspace
-路径: D:/Projects/qcli/frontend
+路径: D:/Projects/cocli/frontend
 ```
 
 ## 最终结构

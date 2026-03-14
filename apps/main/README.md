@@ -1,4 +1,4 @@
-# QCli - 脚手架工具
+# CoCli - 脚手架工具
 
 一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件。
 
@@ -385,7 +385,7 @@ qcl addons list --verbose
 可用的 addons (详细信息):
 
 add
-  来源: D:/Projects/qcli/.test
+  来源: D:/Projects/cocli/.test
   路径配置:
     - ./addons/add/**
   详细信息:
@@ -420,7 +420,7 @@ qcl addons detail vue3-funs
 
 ```
 add
-  来源: D:/Projects/qcli/.test
+  来源: D:/Projects/cocli/.test
   路径配置:
     - ./addons/add/**
   详细信息:

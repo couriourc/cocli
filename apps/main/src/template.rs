@@ -50,7 +50,7 @@ impl TemplateManager {
         let template_config = found_template
             .ok_or_else(|| {
                 let mut error_msg = format!("❌ 未找到模板: {}", template_name);
-                error_msg.push_str(&format!("\n\n💡 提示: 使用 `qcl template list` 查看所有可用模板"));
+                error_msg.push_str(&format!("\n\n💡 提示: 使用 `cocli template list` 查看所有可用模板"));
                 anyhow::anyhow!(error_msg)
             })?;
 
@@ -131,7 +131,7 @@ impl TemplateManager {
         println!("✅ 项目 {} 创建成功！", project_name);
         println!("💡 提示: 使用 `cd {}` 进入项目目录", project_name);
         if !addons.is_empty() {
-            println!("💡 提示: 使用 `qcl addons list` 查看所有可用插件");
+            println!("💡 提示: 使用 `cocli addons list` 查看所有可用插件");
         }
         Ok(())
     }
@@ -828,7 +828,7 @@ impl TemplateManager {
         Self::update_qclocal_addons(&target_dir, addons).await?;
 
         println!("✅ Addons 添加成功！");
-        println!("💡 提示: 使用 `qcl addons sync` 同步所有配置的插件");
+        println!("💡 提示: 使用 `cocli addons sync` 同步所有配置的插件");
         Ok(())
     }
 
@@ -1034,17 +1034,17 @@ impl TemplateManager {
 
         // 如果都没有指定，显示一般帮助信息
         if addon_name.is_none() && template_name.is_none() {
-            println!("QCli 脚手架工具");
+            println!("CoCli 脚手架工具");
             println!();
             println!("使用方法:");
-            println!("  qcl create --template=<模板名> [--addons=<addon列表>] <项目名>");
-            println!("  qcl template list");
-            println!("  qcl addons list");
-            println!("  qcl addons add <addon列表> [项目目录]");
-            println!("  qcl addons sync [项目目录]");
-            println!("  qcl help [--template=<模板名>] [--addons=<addon名>]");
+            println!("  cocli create --template=<模板名> [--addons=<addon列表>] <项目名>");
+            println!("  cocli template list");
+            println!("  cocli addons list");
+            println!("  cocli addons add <addon列表> [项目目录]");
+            println!("  cocli addons sync [项目目录]");
+            println!("  cocli help [--template=<模板名>] [--addons=<addon名>]");
             println!();
-            println!("更多信息，请使用: qcl help --template <模板名> 或 qcl help --addons <addon名>");
+            println!("更多信息，请使用: cocli help --template <模板名> 或 cocli help --addons <addon名>");
             return Ok(());
         }
 
@@ -1080,7 +1080,7 @@ impl TemplateManager {
                                 }
                                 println!();
                                 println!("使用方法:");
-                                println!("  qcl create --template={} <项目名>", template);
+                                println!("  cocli create --template={} <项目名>", template);
                                 return Ok(());
                             }
                         }

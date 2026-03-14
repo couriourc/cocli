@@ -1,10 +1,10 @@
 # 快速开始
 
-欢迎使用 QCli！本指南将帮助你在几分钟内开始使用 QCli。
+欢迎使用 CoCli！本指南将帮助你在几分钟内开始使用 CoCli。
 
-## 什么是 QCli？
+## 什么是 CoCli？
 
-QCli 是一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件。它可以帮助你：
+CoCli 是一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件。它可以帮助你：
 
 - 🚀 快速创建新项目
 - 🔌 管理项目插件
@@ -33,8 +33,8 @@ npm install -g qcl
 ### 从源码构建
 
 ```bash
-git clone https://github.com/couriourc/qcli.git
-cd qcli/apps/main
+git clone https://github.com/couriourc/cocli.git
+cd cocli/apps/main
 cargo build --release
 ```
 

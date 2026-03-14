@@ -1,6 +1,6 @@
 # VitePress 文档站点
 
-这是 QCli 的文档站点，使用 VitePress 构建。
+这是 CoCli 的文档站点，使用 VitePress 构建。
 
 ## 文档结构
 

@@ -6,7 +6,7 @@ const base = process.env.VITEPRESS_BASE || '/'
 
 export default defineConfig({
   base,
-  title: 'QCli',
+  title: 'CoCli',
   description: '一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件',
   
   head: [
@@ -22,7 +22,7 @@ export default defineConfig({
       { text: '命令', link: '/commands/' },
       { text: '配置', link: '/config/' },
       { text: '示例', link: '/examples/' },
-      { text: 'GitHub', link: 'https://github.com/couriourc/qcli' }
+      { text: 'GitHub', link: 'https://github.com/couriourc/cocli' }
     ],
 
     sidebar: {
@@ -86,12 +86,12 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/couriourc/qcli' }
+      { icon: 'github', link: 'https://github.com/couriourc/cocli' }
     ],
 
     footer: {
       message: 'Released under the ISC License.',
-      copyright: 'Copyright © 2024 QCli'
+      copyright: 'Copyright © 2024 CoCli'
     },
 
     search: {
