@@ -43,6 +43,12 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      - name: Install cross (for cross-compilation)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        uses: taiki-e/install-action@cargo-cross
+        with:
+          tool: cross
+
       - name: Cache Cargo registry
         uses: actions/cache@v4
         with:
@@ -56,7 +62,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.target }}-
 
-      - name: Build binary
+      - name: Build binary (using cross for ARM64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        working-directory: apps/main
+        run: |
+          cross build --release --target ${{ matrix.target }}
+
+      - name: Build binary (native)
+        if: matrix.target != 'aarch64-unknown-linux-gnu'
         working-directory: apps/main
         run: |
           cargo build --release --target ${{ matrix.target }}

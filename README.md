@@ -1,5 +1,9 @@
 # CoCli
 
+<div align="center">
+  <img src="assets/logo.png" alt="CoCli Logo" width="200">
+</div>
+
 一个灵活、强大的项目脚手架工具，支持从多种来源获取模板和插件。
 
 [![License](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
