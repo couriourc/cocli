@@ -19,11 +19,16 @@ if (fs.existsSync(releasePath)) {
 } else {
     // 如果没有构建的二进制文件，尝试使用 cargo run（开发环境）
     const cargoPath = isWindows ? 'cargo.exe' : 'cargo';
+    const originalCwd = process.cwd(); // 保存原始工作目录
     const args = ['run', '--release', '--', ...process.argv.slice(2)];
     const child = spawn(cargoPath, args, {
         stdio: 'inherit',
         shell: isWindows,
-        cwd: path.join(__dirname, '..')
+        cwd: path.join(__dirname, '..'),
+        env: {
+            ...process.env,
+            COCLI_ORIGINAL_CWD: originalCwd // 传递原始工作目录
+        }
     });
     
     child.on('error', (error) => {
@@ -43,7 +48,8 @@ if (fs.existsSync(releasePath)) {
 const args = process.argv.slice(2);
 const child = spawn(binaryPath, args, {
     stdio: 'inherit',
-    shell: isWindows
+    shell: isWindows,
+    cwd: process.cwd() // 保持当前工作目录
 });
 
 child.on('error', (error) => {

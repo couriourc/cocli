@@ -369,11 +369,24 @@ pub async fn handle_init(args: InitArgs) -> anyhow::Result<()> {
     use std::io::{self, Write};
     use std::path::PathBuf;
     
+    // 获取工作目录（优先使用环境变量中的原始工作目录）
+    let working_dir = if let Ok(original_cwd) = std::env::var("COCLI_ORIGINAL_CWD") {
+        PathBuf::from(original_cwd)
+    } else {
+        std::env::current_dir()?
+    };
+    
     // 确定配置文件路径
     let config_path = if let Some(file) = args.file {
-        PathBuf::from(file)
+        let path = PathBuf::from(file);
+        // 如果是相对路径，基于工作目录解析
+        if path.is_absolute() {
+            path
+        } else {
+            working_dir.join(path)
+        }
     } else {
-        std::env::current_dir()?.join(".qclrc")
+        working_dir.join(".qclrc")
     };
     
     // 检查文件是否已存在
