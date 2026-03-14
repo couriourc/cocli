@@ -2,28 +2,27 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
+      - develop
 
 jobs:
-  build:
-    name: Build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
 
-      - name: Cache Cargo dependencies
+      - name: Cache Cargo registry
         uses: actions/cache@v4
         with:
           path: |
@@ -32,45 +31,54 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             apps/main/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('apps/main/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.15.0
+      - name: Check formatting
+        working-directory: apps/main
+        run: cargo fmt -- --check
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+      - name: Run clippy
+        working-directory: apps/main
+        run: cargo clippy -- -D warnings
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Rust project
+      - name: Build
         working-directory: apps/main
         run: cargo build --release
 
-      - name: Verify binary exists
+      - name: Run tests
         working-directory: apps/main
-        shell: bash
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            test -f target/release/cocli.exe || exit 1
-          else
-            test -f target/release/cocli || exit 1
-          fi
+        run: cargo test --release
 
-      - name: Test binary
+  build-check:
+    name: Build Check (Multi-platform)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            apps/main/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('apps/main/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build
         working-directory: apps/main
-        shell: bash
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            ./target/release/cocli.exe --help || exit 1
-          else
-            ./target/release/cocli --help || exit 1
-          fi
-
+        run: cargo build --release

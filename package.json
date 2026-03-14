@@ -17,7 +17,6 @@
   "license": "ISC",
   "packageManager": "pnpm@10.15.0",
   "dependencies": {
-    "cocli": "workspace:*",
     "turbo": "^2.8.16"
   },
   "devDependencies": {

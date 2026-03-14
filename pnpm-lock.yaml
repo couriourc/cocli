@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      cocli:
-        specifier: workspace:*
-        version: link:apps/main
+      cocli-home:
+        specifier: github:couriourc/cocli
+        version: https://codeload.github.com/couriourc/cocli/tar.gz/e003e171ba829c9178747c51089dcfff325e93bb
       turbo:
         specifier: ^2.8.16
         version: 2.8.16
@@ -576,6 +576,10 @@ packages:
 
   character-entities-legacy@3.0.0:
     resolution: {integrity: sha512-RpPp0asT/6ufRm//AJVwpViZbGM/MkjQFxJccQRHmISF/22NBtsHqAWmL+/pmkPWoIUJdWyeVleTl1wydHATVQ==}
+
+  cocli-home@https://codeload.github.com/couriourc/cocli/tar.gz/e003e171ba829c9178747c51089dcfff325e93bb:
+    resolution: {tarball: https://codeload.github.com/couriourc/cocli/tar.gz/e003e171ba829c9178747c51089dcfff325e93bb}
+    version: 1.0.0
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
@@ -1339,6 +1343,11 @@ snapshots:
   character-entities-html4@2.1.0: {}
 
   character-entities-legacy@3.0.0: {}
+
+  cocli-home@https://codeload.github.com/couriourc/cocli/tar.gz/e003e171ba829c9178747c51089dcfff325e93bb:
+    dependencies:
+      cocli: link:apps/main
+      turbo: 2.8.16
 
   comma-separated-tokens@2.0.3: {}
 

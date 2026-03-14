@@ -23,7 +23,10 @@
   "packageManager": "pnpm@10.15.0",
   "files": [
     "bin",
-    "README.md"
+    "README.md",
+    "Cargo.toml",
+    "Cargo.lock",
+    "src"
   ],
   "repository": {
     "type": "git",

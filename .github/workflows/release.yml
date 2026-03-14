@@ -3,16 +3,37 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'  # 触发发布，例如 v1.0.0
+      - 'v*'  # 匹配所有以 v 开头的 tag，例如 v0.1.0
 
 jobs:
-  build-all-platforms:
-    name: Build for all platforms
+  build:
+    name: Build for ${{ matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+            target: x86_64-unknown-linux-gnu
+            artifact_name: cocli-linux-x86_64
+          - os: ubuntu-latest
+            arch: aarch64
+            target: aarch64-unknown-linux-gnu
+            artifact_name: cocli-linux-aarch64
+          - os: macos-latest
+            arch: x86_64
+            target: x86_64-apple-darwin
+            artifact_name: cocli-macos-x86_64
+          - os: macos-latest
+            arch: arm64
+            target: aarch64-apple-darwin
+            artifact_name: cocli-macos-arm64
+          - os: windows-latest
+            arch: x86_64
+            target: x86_64-pc-windows-msvc
+            artifact_name: cocli-windows-x86_64.exe
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,9 +41,9 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
+          targets: ${{ matrix.target }}
 
-      - name: Cache Cargo dependencies
+      - name: Cache Cargo registry
         uses: actions/cache@v4
         with:
           path: |
@@ -31,193 +52,133 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             apps/main/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('apps/main/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-${{ matrix.target }}-
 
-      - name: Build Rust project
+      - name: Build binary
         working-directory: apps/main
-        run: cargo build --release
+        run: |
+          cargo build --release --target ${{ matrix.target }}
 
-      - name: Upload binary artifact
+      - name: Prepare artifact
+        working-directory: apps/main
+        shell: bash
+        run: |
+          mkdir -p release-artifact
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            cp target/${{ matrix.target }}/release/cocli.exe release-artifact/${{ matrix.artifact_name }}
+          else
+            cp target/${{ matrix.target }}/release/cocli release-artifact/${{ matrix.artifact_name }}
+            chmod +x release-artifact/${{ matrix.artifact_name }}
+          fi
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ matrix.os }}
-          path: |
-            apps/main/target/release/cocli*
-          retention-days: 7
-          if-no-files-found: error
+          name: ${{ matrix.artifact_name }}
+          path: apps/main/release-artifact/${{ matrix.artifact_name }}
+          retention-days: 30
 
-  publish:
-    name: Publish to npm
-    needs: build-all-platforms
+  release:
+    name: Create Release
+    needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 需要创建 release 的权限
-      packages: write   # 如果需要发布到 npm
-    
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.15.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download Linux binary
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: binary-ubuntu-latest
-          path: binaries/linux
-
-      - name: Download macOS binary
-        uses: actions/download-artifact@v4
-        with:
-          name: binary-macos-latest
-          path: binaries/darwin
-
-      - name: Download Windows binary
-        uses: actions/download-artifact@v4
-        with:
-          name: binary-windows-latest
-          path: binaries/win32
-
-      - name: Extract version from tag
-        id: get_version
-        shell: bash
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Tag version: $VERSION"
-
-      - name: Update package.json version
-        working-directory: apps/main
-        shell: bash
-        run: |
-          npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
-
-      - name: Prepare binaries for package
-        working-directory: apps/main
-        shell: bash
-        run: |
-          # 创建平台特定的目录结构
-          mkdir -p bin/linux bin/darwin bin/win32
-          
-          # 复制 Linux 二进制文件
-          if find ../../binaries/linux -name "cocli" -type f | head -1 | xargs -I {} cp {} bin/linux/cocli 2>/dev/null; then
-            chmod +x bin/linux/cocli
-            echo "✓ Linux 二进制文件已复制"
-          else
-            echo "⚠️  Linux 二进制文件未找到"
-          fi
-          
-          # 复制 macOS 二进制文件
-          if find ../../binaries/darwin -name "cocli" -type f | head -1 | xargs -I {} cp {} bin/darwin/cocli 2>/dev/null; then
-            chmod +x bin/darwin/cocli
-            echo "✓ macOS 二进制文件已复制"
-          else
-            echo "⚠️  macOS 二进制文件未找到"
-          fi
-          
-          # 复制 Windows 二进制文件
-          if find ../../binaries/win32 -name "cocli.exe" -type f | head -1 | xargs -I {} cp {} bin/win32/cocli.exe 2>/dev/null; then
-            echo "✓ Windows 二进制文件已复制"
-          else
-            echo "⚠️  Windows 二进制文件未找到"
-          fi
-          
-          # 验证文件是否存在
-          echo ""
-          echo "=== 准备的文件 ==="
-          ls -lh bin/linux/ 2>/dev/null || echo "❌ Linux 二进制文件未找到"
-          ls -lh bin/darwin/ 2>/dev/null || echo "❌ macOS 二进制文件未找到"
-          ls -lh bin/win32/ 2>/dev/null || echo "❌ Windows 二进制文件未找到"
-          
-          # 检查是否至少有一个文件存在
-          if [ ! -f bin/linux/cocli ] && [ ! -f bin/darwin/cocli ] && [ ! -f bin/win32/cocli.exe ]; then
-            echo "❌ 错误: 未找到任何二进制文件"
-            echo "Artifact 结构:"
-            find ../../binaries -type f 2>/dev/null | head -20
-            exit 1
-          fi
-
-      - name: Update cocli.js to support multiple platforms
-        working-directory: apps/main
-        shell: bash
-        run: |
-          cat > bin/cocli.js << 'EOF'
-          #!/usr/bin/env node
-          
-          const { spawn } = require('child_process');
-          const path = require('path');
-          const fs = require('fs');
-          const os = require('os');
-          
-          const platform = os.platform();
-          const isWindows = platform === 'win32';
-          
-          let binaryPath;
-          if (platform === 'linux') {
-            binaryPath = path.join(__dirname, 'linux', 'cocli');
-          } else if (platform === 'darwin') {
-            binaryPath = path.join(__dirname, 'darwin', 'cocli');
-          } else if (platform === 'win32') {
-            binaryPath = path.join(__dirname, 'win32', 'cocli.exe');
-          } else {
-            console.error(`不支持的平台: ${platform}`);
-            process.exit(1);
-          }
-          
-          if (!fs.existsSync(binaryPath)) {
-            console.error(`未找到二进制文件: ${binaryPath}`);
-            console.error('提示: 请先运行 pnpm build 构建二进制文件');
-            process.exit(1);
-          }
-          
-          const args = process.argv.slice(2);
-          const child = spawn(binaryPath, args, {
-            stdio: 'inherit',
-            shell: isWindows
-          });
-          
-          child.on('error', (error) => {
-            console.error(`执行错误: ${error.message}`);
-            process.exit(1);
-          });
-          
-          child.on('exit', (code) => {
-            process.exit(code || 0);
-          });
-          EOF
-          chmod +x bin/cocli.js
+          path: release-artifacts
 
       - name: Prepare release assets
         shell: bash
         run: |
-          mkdir -p release-assets
-          # 复制所有二进制文件到 release-assets
-          find binaries -name "cocli*" -type f -exec cp {} release-assets/ \;
-          ls -la release-assets/
+          cd release-artifacts
+          # 为每个平台创建压缩包
+          for artifact_dir in */; do
+            if [ -d "$artifact_dir" ]; then
+              platform=$(basename "$artifact_dir")
+              cd "$artifact_dir"
+              # 查找二进制文件
+              for file in *; do
+                if [ -f "$file" ]; then
+                  if [[ "$file" == *".exe" ]]; then
+                    # Windows: 创建 zip
+                    zip "../${platform}.zip" "$file"
+                  else
+                    # Unix: 创建 tar.gz
+                    tar -czf "../${platform}.tar.gz" "$file"
+                  fi
+                fi
+              done
+              cd ..
+            elif [ -f "$artifact_dir" ]; then
+              # 处理直接是文件的情况（某些情况下 artifact 可能是文件而不是目录）
+              file="$artifact_dir"
+              platform="${file%.*}"
+              if [[ "$file" == *".exe" ]]; then
+                zip "${platform}.zip" "$file"
+              else
+                tar -czf "${platform}.tar.gz" "$file"
+              fi
+            fi
+          done
+          # 移动所有压缩包到根目录
+          find . -name "*.zip" -o -name "*.tar.gz" | while read f; do
+            if [ "$(dirname "$f")" != "." ]; then
+              mv "$f" .
+            fi
+          done
+          cd ..
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Extract version from tag
+        id: tag_version
+        shell: bash
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         with:
+          name: Release ${{ steps.tag_version.outputs.tag }}
+          body: |
+            ## CoCli ${{ steps.tag_version.outputs.version }}
+
+            ### 安装方式
+
+            推荐使用以下方式安装（会自动从 `apps/main/` 目录构建）：
+
+            ```bash
+            # 使用 npm
+            npm install -g git+https://github.com/${{ github.repository }}.git#${{ steps.tag_version.outputs.tag }}
+
+            # 使用 pnpm
+            pnpm add -g git+https://github.com/${{ github.repository }}.git#${{ steps.tag_version.outputs.tag }}
+            ```
+
+            **注意**: 从 Git 安装会自动在 `apps/main/` 目录下运行构建，需要系统安装 Rust 和 Cargo。
+
+            ### 预构建二进制文件
+
+            如果不想从源码构建，可以从下方下载对应平台的预构建二进制文件：
+
+            - Linux (x86_64): `cocli-linux-x86_64.tar.gz`
+            - Linux (ARM64): `cocli-linux-aarch64.tar.gz`
+            - macOS (Intel): `cocli-macos-x86_64.tar.gz`
+            - macOS (Apple Silicon): `cocli-macos-arm64.tar.gz`
+            - Windows (x86_64): `cocli-windows-x86_64.zip`
+
+            下载后解压并将二进制文件添加到 PATH 环境变量中即可使用。
           files: |
-            release-assets/*
+            release-artifacts/*.zip
+            release-artifacts/*.tar.gz
           draft: false
           prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
