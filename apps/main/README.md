@@ -1,6 +1,8 @@
 # CoCli - 脚手架工具
 
-一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件。
+一个灵活、强大的项目脚手架工具，支持从多种来源（Git、本地目录）获取模板和插件。
+
+> **注意**: CoCli 已从 Rust 实现迁移到 Node.js 实现，现在完全基于 Node.js 运行。需要 Node.js 18+ 和 pnpm/npm/yarn。
 
 ## 目录
 
@@ -36,11 +38,12 @@ pnpm dlx git+https://github.com/couriourc/cocli.git <command>
 npm install -g git+https://github.com/couriourc/cocli.git
 ```
 
-### 使用 cargo（从源码构建）
+### 从源码运行
 
 ```bash
 cd apps/main
-cargo build --release
+pnpm install
+node src/index.js --help
 ```
 
 ## 快速开始
@@ -213,6 +216,10 @@ workspace/
 
 ### meta.yaml 格式
 
+支持两种格式：
+
+#### 格式 1：传统格式（每个 addon 单独定义）
+
 ```yaml
 # 模板定义
 templates:
@@ -245,6 +252,36 @@ addons:
   vue3-funs:
     root: ./addons/vue3-funs/**
 ```
+
+#### 格式 2：新格式（统一管理 addons）
+
+```yaml
+# 模板定义
+templates:
+  vue3:
+    root: templates/vue3/
+    plop: true              # 启用 plop 支持（可选）
+    plopfile: plopfile.js   # plop 配置文件路径（可选，默认为 plopfile.js）
+
+# Addons 配置（统一管理）
+addons:
+  root: ./packages/        # Addons 的根目录
+  target_dir: ./packages/  # Addons 的目标目录（可选）
+
+# Plop 全局配置（可选）
+plop:
+  enabled: true            # 全局启用 plop
+  plopfile: plopfile.js    # plop 配置文件路径
+```
+
+在新格式中，addons 会从 `root` 目录下的子目录自动识别。例如，如果 `root` 是 `./packages/`，那么 `packages/addon1/` 和 `packages/addon2/` 会被识别为两个独立的 addon。
+
+### 格式选择
+
+- **传统格式**：适合需要为每个 addon 单独配置路径的场景
+- **新格式**：适合 addons 统一存放在一个目录下的场景，更简洁
+
+两种格式可以混合使用，工具会自动识别并处理。
 
 ### 路径说明
 
@@ -342,6 +379,60 @@ cocli template list
   - react
   - vue2
   - vue3
+```
+
+### Plop 生成器 (plop)
+
+#### `cocli plop run [生成器名]` - 运行 plop 生成器
+
+在项目目录中运行 plop 生成器。
+
+```bash
+cocli plop run [生成器名]
+```
+
+**参数：**
+
+- `[生成器名]`：要运行的生成器名称（可选，如果不提供会显示交互式菜单）
+
+**示例：**
+
+```bash
+# 显示交互式菜单选择生成器
+cocli plop run
+
+# 直接运行指定的生成器
+cocli plop run mod
+cocli plop run vue
+```
+
+**说明：**
+
+- 需要在项目目录中运行（项目必须包含 `plopfile.js`）
+- 如果模板配置了 plop，创建项目时会自动设置 plop
+- 确保已安装 plop 依赖：`npm install` 或 `pnpm install`
+
+#### `cocli plop list` - 列出可用的 plop 生成器
+
+列出当前项目中可用的 plop 生成器。
+
+```bash
+cocli plop list
+```
+
+**示例：**
+
+```bash
+# 列出所有可用的生成器
+cocli plop list
+```
+
+**输出示例：**
+
+```
+可用的 plop 生成器:
+  - mod
+  - vue
 ```
 
 ### 插件管理 (addons)
@@ -789,6 +880,13 @@ A:
 2. 在仓库根目录创建 `meta.yaml`
 3. 在 `meta.yaml` 中定义模板路径
 4. 将仓库添加到配置文件中
+
+### Q: 系统要求是什么？
+
+A: 
+- Node.js 18 或更高版本
+- pnpm 10.15.0+（推荐）或 npm/yarn
+- 不需要 Rust 或 Cargo（已迁移到 Node.js）
 
 ### Q: `.qclocal` 中的 `inherit` 字段有什么用？
 

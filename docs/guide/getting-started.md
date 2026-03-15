@@ -1,107 +1,109 @@
 # 快速开始
 
-欢迎使用 CoCli！本指南将帮助你在几分钟内开始使用 CoCli。
-
-## 什么是 CoCli？
-
-CoCli 是一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件。它可以帮助你：
-
-- 🚀 快速创建新项目
-- 🔌 管理项目插件
-- 📦 从多个仓库获取模板和插件
-- 🎯 管理工作区
-- ⚙️ 灵活的配置管理
+本指南将帮助你快速上手 CoCli，从安装到创建第一个项目。
 
 ## 安装
-
-### 使用 pnpm（推荐）
-
-```bash
-# 全局安装（从 Git 安装）
-pnpm add -g git+https://github.com/couriourc/cocli.git
-
-# 或使用 dlx 直接运行
-pnpm dlx git+https://github.com/couriourc/cocli.git <command>
-```
 
 ### 使用 npm
 
 ```bash
-npm install -g git+https://github.com/couriourc/cocli.git
+npm install -g cocli
 ```
 
-### 从源码构建
+### 使用 pnpm（推荐）
 
 ```bash
-git clone https://github.com/couriourc/cocli.git
-cd cocli/apps/main
-cargo build --release
+pnpm add -g cocli
 ```
 
-## 第一步：初始化配置
+### 使用 yarn
 
-使用 `cocli init` 命令创建配置文件：
+```bash
+yarn global add cocli
+```
+
+### 验证安装
+
+安装完成后，运行以下命令验证安装是否成功：
+
+```bash
+cocli --version
+```
+
+如果看到版本号输出，说明安装成功。
+
+## 初始化配置（可选）
+
+CoCli 支持零配置启动，但如果你需要自定义配置，可以运行：
 
 ```bash
 cocli init
 ```
 
-这将引导你完成配置文件的创建，包括：
+这将创建一个 `.qclrc` 配置文件，你可以配置：
 
-- 全局认证信息（可选）
-- 仓库配置（local、github、gitlab、ftp）
+- 全局用户名和密码
+- 仓库源（Git、FTP、本地）
+- 工作区设置
 
-或者使用非交互模式快速创建默认配置：
+## 创建第一个项目
+
+### 方式一：零配置启动（推荐）
+
+无需任何配置，直接创建项目：
 
 ```bash
-cocli init -y
+cocli create my-app
 ```
 
-## 创建你的第一个项目
+这将使用默认的 Vue3 模板创建项目。
 
-1. **查看可用模板**
+### 方式二：指定模板
 
-   ```bash
-   cocli template list
-   ```
+```bash
+cocli create my-app --template=vue3
+```
 
-2. **创建项目**
+### 方式三：添加插件
 
-   ```bash
-   cocli app create --template=vue3 my-first-app
-   ```
+```bash
+cocli create my-app --template=vue3 --addons=my-plugin
+```
 
-3. **查看项目列表**
+## 添加组件
 
-   ```bash
-   cocli app list
-   ```
+创建项目后，你可以按需添加组件：
 
-## 添加插件
+```bash
+cd my-app
 
-1. **查看可用插件**
+# 添加单个组件
+cocli add button
 
-   ```bash
-   cocli addons list
-   ```
+# 添加多个组件
+cocli add button table form
 
-2. **查看插件详情**
+# 指定版本
+cocli add button --version=1.0.0
+```
 
-   ```bash
-   cocli addons detail vue3-funs
-   ```
+## 列出可用项
 
-3. **添加插件到项目**
+查看所有可用的模板和组件：
 
-   ```bash
-   cd my-first-app
-   cocli addons add vue3-funs .
-   ```
+```bash
+# 列出所有项
+cocli list
+
+# 按类型列出
+cocli list component
+cocli list module
+```
 
 ## 下一步
 
-- 📖 阅读 [安装指南](/guide/installation) 了解更多安装选项
-- 📚 查看 [命令参考](/commands/) 了解所有可用命令
-- ⚙️ 了解 [配置文件](/config/) 的详细说明
-- 💡 查看 [示例](/examples/) 学习更多用法
+- 📖 [了解命令参考](/guide/commands)
+- 🧩 [学习模板系统](/guide/templates)
+- 🔌 [探索插件系统](/guide/addons)
+- 🏢 [管理工作区](/guide/workspace)
 

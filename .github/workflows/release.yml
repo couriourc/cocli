@@ -6,102 +6,8 @@ on:
       - 'v*'  # 匹配所有以 v 开头的 tag，例如 v0.1.0
 
 jobs:
-  build:
-    name: Build for ${{ matrix.os }} (${{ matrix.arch }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            arch: x86_64
-            target: x86_64-unknown-linux-gnu
-            artifact_name: cocli-linux-x86_64
-          - os: ubuntu-latest
-            arch: aarch64
-            target: aarch64-unknown-linux-gnu
-            artifact_name: cocli-linux-aarch64
-          - os: macos-latest
-            arch: x86_64
-            target: x86_64-apple-darwin
-            artifact_name: cocli-macos-x86_64
-          - os: macos-latest
-            arch: arm64
-            target: aarch64-apple-darwin
-            artifact_name: cocli-macos-arm64
-          - os: windows-latest
-            arch: x86_64
-            target: x86_64-pc-windows-msvc
-            artifact_name: cocli-windows-x86_64.exe
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
-      - name: Install cross (for cross-compilation)
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cross
-
-      - name: Cache Cargo registry
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            apps/main/target/
-          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('apps/main/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ matrix.target }}-
-
-      - name: Build binary (using cross for ARM64)
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        working-directory: apps/main
-        env:
-          # 为 cross 交叉编译配置 OpenSSL
-          # git2 和 native-tls 的 vendored 特性应该会自动处理
-          # 但设置这些环境变量可以确保交叉编译正常工作
-          OPENSSL_STATIC: "1"
-          PKG_CONFIG_ALLOW_CROSS: "1"
-        run: |
-          cross build --release --target ${{ matrix.target }}
-
-      - name: Build binary (native)
-        if: matrix.target != 'aarch64-unknown-linux-gnu'
-        working-directory: apps/main
-        run: |
-          cargo build --release --target ${{ matrix.target }}
-
-      - name: Prepare artifact
-        working-directory: apps/main
-        shell: bash
-        run: |
-          mkdir -p release-artifact
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            cp target/${{ matrix.target }}/release/cocli.exe release-artifact/${{ matrix.artifact_name }}
-          else
-            cp target/${{ matrix.target }}/release/cocli release-artifact/${{ matrix.artifact_name }}
-            chmod +x release-artifact/${{ matrix.artifact_name }}
-          fi
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: apps/main/release-artifact/${{ matrix.artifact_name }}
-          retention-days: 30
-
   release:
     name: Create Release
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -110,51 +16,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          path: release-artifacts
+          version: 10.15.0
 
-      - name: Prepare release assets
-        shell: bash
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify installation
+        working-directory: apps/main
         run: |
-          cd release-artifacts
-          # 为每个平台创建压缩包
-          for artifact_dir in */; do
-            if [ -d "$artifact_dir" ]; then
-              platform=$(basename "$artifact_dir")
-              cd "$artifact_dir"
-              # 查找二进制文件
-              for file in *; do
-                if [ -f "$file" ]; then
-                  if [[ "$file" == *".exe" ]]; then
-                    # Windows: 创建 zip
-                    zip "../${platform}.zip" "$file"
-                  else
-                    # Unix: 创建 tar.gz
-                    tar -czf "../${platform}.tar.gz" "$file"
-                  fi
-                fi
-              done
-              cd ..
-            elif [ -f "$artifact_dir" ]; then
-              # 处理直接是文件的情况（某些情况下 artifact 可能是文件而不是目录）
-              file="$artifact_dir"
-              platform="${file%.*}"
-              if [[ "$file" == *".exe" ]]; then
-                zip "${platform}.zip" "$file"
-              else
-                tar -czf "${platform}.tar.gz" "$file"
-              fi
-            fi
-          done
-          # 移动所有压缩包到根目录
-          find . -name "*.zip" -o -name "*.tar.gz" | while read f; do
-            if [ "$(dirname "$f")" != "." ]; then
-              mv "$f" .
-            fi
-          done
-          cd ..
+          node src/index.js --version || echo "Version check completed"
 
       - name: Extract version from tag
         id: tag_version
@@ -173,31 +52,36 @@ jobs:
 
             ### 安装方式
 
-            推荐使用以下方式安装（会自动从 `apps/main/` 目录构建）：
+            推荐使用以下方式安装（会自动从 `apps/main/` 目录安装 Node.js 包）：
 
             ```bash
             # 使用 npm
             npm install -g git+https://github.com/${{ github.repository }}.git#${{ steps.tag_version.outputs.tag }}
 
-            # 使用 pnpm
+            # 使用 pnpm（推荐）
             pnpm add -g git+https://github.com/${{ github.repository }}.git#${{ steps.tag_version.outputs.tag }}
+
+            # 使用 yarn
+            yarn global add git+https://github.com/${{ github.repository }}.git#${{ steps.tag_version.outputs.tag }}
             ```
 
-            **注意**: 从 Git 安装会自动在 `apps/main/` 目录下运行构建，需要系统安装 Rust 和 Cargo。
+            **注意**: 从 Git 安装需要系统安装 Node.js 18+ 和 pnpm/npm/yarn。
 
-            ### 预构建二进制文件
+            ### 从源码运行
 
-            如果不想从源码构建，可以从下方下载对应平台的预构建二进制文件：
+            如果你想从源码运行：
 
-            - Linux (x86_64): `cocli-linux-x86_64.tar.gz`
-            - Linux (ARM64): `cocli-linux-aarch64.tar.gz`
-            - macOS (Intel): `cocli-macos-x86_64.tar.gz`
-            - macOS (Apple Silicon): `cocli-macos-arm64.tar.gz`
-            - Windows (x86_64): `cocli-windows-x86_64.zip`
+            ```bash
+            git clone https://github.com/${{ github.repository }}.git
+            cd cocli
+            pnpm install
+            cd apps/main
+            node src/index.js --help
+            ```
 
-            下载后解压并将二进制文件添加到 PATH 环境变量中即可使用。
-          files: |
-            release-artifacts/*.zip
-            release-artifacts/*.tar.gz
+            ### 系统要求
+
+            - Node.js 18 或更高版本
+            - pnpm 10.15.0+（推荐）或 npm/yarn
           draft: false
           prerelease: false

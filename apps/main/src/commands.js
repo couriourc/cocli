@@ -5,6 +5,10 @@ const readline = require('readline');
 const { Config, WorkspaceManagerConfig } = require('./config');
 const TemplateManager = require('./template');
 const RepoManager = require('./repo');
+const AtomicTemplateManager = require('./atomic');
+const SimpleConfig = require('./config-simple');
+const { getCurrentDir, resolvePathFromCurrentDir } = require('./util');
+const { canUseDefaults, DEFAULT_TEMPLATES } = require('./defaults');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -17,26 +21,67 @@ function question(prompt) {
   });
 }
 
+
 async function handleAppCreate(projectName, options) {
-  // 使用 loadWithPriority 来加载配置，确保 repos 是数组格式
-  const currentDir = process.env.INIT_CWD || process.cwd();
-  const { repos, config: configForAuth } = Config.loadWithPriority(currentDir);
+  // 零配置启动：如果没有配置且可以使用默认配置，使用默认模板
+  let template = options.template;
   
+  if (!template && canUseDefaults()) {
+    // 使用默认模板（vue3）
+    template = 'vue3';
+    console.log('💡 使用默认模板: vue3（零配置启动）');
+    console.log('💡 提示: 使用 --template 指定其他模板，或运行 cocli init 配置自定义仓库\n');
+  }
+
+  // 尝试加载配置
+  let repos, configForAuth;
+  try {
+    const loaded = Config.loadWithPriority();
+    repos = loaded.repos;
+    configForAuth = loaded.config;
+  } catch (error) {
+    // 如果加载失败且可以使用默认配置，使用默认仓库
+    if (canUseDefaults()) {
+      const defaultConfig = require('./defaults').getDefaultConfig();
+      repos = defaultConfig.repos;
+      configForAuth = new Config();
+    } else {
+      throw new Error(
+        `❌ 未找到配置文件\n\n` +
+        `💡 解决方案:\n` +
+        `  1. 运行 \`cocli init\` 初始化配置\n` +
+        `  2. 或使用默认模板: \`cocli create ${projectName} --template=vue3\`\n`
+      );
+    }
+  }
+
+  // 如果没有指定模板，使用 vue3 作为默认
+  if (!template) {
+    template = 'vue3';
+  }
+
   // 创建一个包含 repos 的配置对象
   const config = {
     ...configForAuth,
     repos: repos,
   };
-  
+
   const addons = options.addons ? options.addons.split(',').filter(Boolean) : [];
+
+  await TemplateManager.create(template, addons, projectName, config);
+
+  // 提示无侵入特性
+  const projectPath = path.resolve(projectName);
+  console.log('\n✅ 项目创建成功！');
+  console.log('💡 提示: 生成的项目不绑定 CoCli 依赖，可安全删除 .qclocal 文件');
+  console.log(`💡 提示: 使用 \`cd ${projectName}\` 进入项目目录`);
   
-  await TemplateManager.create(options.template, addons, projectName, config);
   process.exit(0);
 }
 
 async function handleAppList() {
   // 获取当前工作区（通过当前目录的 .qclrc 文件）
-  const currentWorkspace = WorkspaceManagerConfig.getCurrent();
+  const currentWorkspace = getCurrentDir();
   const workspacePath = currentWorkspace ? currentWorkspace.path : process.cwd();
 
   if (!fs.existsSync(workspacePath)) {
@@ -83,15 +128,15 @@ async function handleTemplateList() {
 }
 
 async function handleTemplateCreate(name, options) {
-  const repoDir = path.resolve(options.repoDir || '.');
-  
+  const repoDir = resolvePathFromCurrentDir(options.repoDir || '.');
+
   if (!fs.existsSync(repoDir)) {
     throw new Error(`仓库目录不存在: ${repoDir}`);
   }
 
   const templatePath = options.path || `templates/${name}`;
   const templateDir = path.join(repoDir, templatePath);
-  
+
   if (fs.existsSync(templateDir)) {
     throw new Error(`模板目录已存在: ${templateDir}`);
   }
@@ -110,7 +155,7 @@ async function handleTemplateCreate(name, options) {
   // 读取或创建 meta.yaml
   const metaPath = path.join(repoDir, 'meta.yaml');
   let meta = { templates: {}, addons: {} };
-  
+
   if (fs.existsSync(metaPath)) {
     const content = fs.readFileSync(metaPath, 'utf8');
     meta = yaml.load(content) || meta;
@@ -146,7 +191,7 @@ async function handleAddonsDetail(addon) {
 
 async function handleAddonsAdd(addons, projectDir) {
   const addonList = addons.split(',').filter(Boolean);
-  const targetDir = path.resolve(projectDir || '.');
+  const targetDir = resolvePathFromCurrentDir(projectDir || '.');
 
   if (!fs.existsSync(targetDir)) {
     throw new Error(`项目目录不存在: ${targetDir}`);
@@ -154,7 +199,7 @@ async function handleAddonsAdd(addons, projectDir) {
 
   // 读取 .qclocal 文件
   const qclocal = Config.loadQclocalFromDir(targetDir);
-  const { repos, config: configForAuth } = Config.loadWithPriority(targetDir);
+  const { repos, config: configForAuth } = Config.loadWithPriority();
 
   const foundAddons = {};
   let repoUrl = null;
@@ -247,7 +292,7 @@ async function handleAddonsAdd(addons, projectDir) {
 }
 
 async function handleAddonsSync(projectDir) {
-  const targetDir = path.resolve(projectDir || '.');
+  const targetDir = resolvePathFromCurrentDir(projectDir || '.');
 
   if (!fs.existsSync(targetDir)) {
     throw new Error(`项目目录不存在: ${targetDir}`);
@@ -263,7 +308,7 @@ async function handleAddonsSync(projectDir) {
     return;
   }
 
-  const { repos, config: configForAuth } = Config.loadWithPriority(targetDir);
+  const { repos, config: configForAuth } = Config.loadWithPriority();
 
   const foundAddons = {};
   let repoUrl = null;
@@ -276,39 +321,39 @@ async function handleAddonsSync(projectDir) {
       continue;
     }
 
-      try {
-        const meta = await RepoManager.fetchMeta(url, repo, configForAuth);
-        if (meta.addons) {
-          // 支持新的格式：addons.root 和 addons.target_dir
-          if (meta.addons.root && !meta.addons[Object.keys(meta.addons)[0]]?.root) {
-            // 新格式：从 addons.root 目录中查找 addons
-            const addonsRoot = meta.addons.root;
-            for (const addonName of qclocal.addons.include) {
-              foundAddons[addonName] = {
-                root: `${addonsRoot.replace(/\/$/, '')}/${addonName}/**`,
-              };
+    try {
+      const meta = await RepoManager.fetchMeta(url, repo, configForAuth);
+      if (meta.addons) {
+        // 支持新的格式：addons.root 和 addons.target_dir
+        if (meta.addons.root && !meta.addons[Object.keys(meta.addons)[0]]?.root) {
+          // 新格式：从 addons.root 目录中查找 addons
+          const addonsRoot = meta.addons.root;
+          for (const addonName of qclocal.addons.include) {
+            foundAddons[addonName] = {
+              root: `${addonsRoot.replace(/\/$/, '')}/${addonName}/**`,
+            };
+            if (!repoUrl) {
+              repoUrl = url;
+              repoConfig = repo;
+            }
+          }
+        } else {
+          // 旧格式：addons 是一个 map
+          for (const addonName of qclocal.addons.include) {
+            if (meta.addons[addonName]) {
+              foundAddons[addonName] = meta.addons[addonName];
               if (!repoUrl) {
                 repoUrl = url;
                 repoConfig = repo;
               }
             }
-          } else {
-            // 旧格式：addons 是一个 map
-            for (const addonName of qclocal.addons.include) {
-              if (meta.addons[addonName]) {
-                foundAddons[addonName] = meta.addons[addonName];
-                if (!repoUrl) {
-                  repoUrl = url;
-                  repoConfig = repo;
-                }
-              }
-            }
           }
         }
-      } catch (error) {
-        console.warn(`警告: 无法从 ${url} 获取元数据: ${error.message}`);
-        continue;
       }
+    } catch (error) {
+      console.warn(`警告: 无法从 ${url} 获取元数据: ${error.message}`);
+      continue;
+    }
   }
 
   if (Object.keys(foundAddons).length === 0) {
@@ -343,15 +388,15 @@ async function handleAddonsSync(projectDir) {
 }
 
 async function handleAddonsCreate(name, options) {
-  const repoDir = path.resolve(options.repoDir || '.');
-  
+  const repoDir = resolvePathFromCurrentDir(options.repoDir || '.');
+
   if (!fs.existsSync(repoDir)) {
     throw new Error(`仓库目录不存在: ${repoDir}`);
   }
 
   const addonPath = options.path || `addons/${name}`;
   const addonDir = path.join(repoDir, addonPath);
-  
+
   if (fs.existsSync(addonDir)) {
     throw new Error(`插件目录已存在: ${addonDir}`);
   }
@@ -370,7 +415,7 @@ async function handleAddonsCreate(name, options) {
   // 读取或创建 meta.yaml
   const metaPath = path.join(repoDir, 'meta.yaml');
   let meta = { templates: {}, addons: {} };
-  
+
   if (fs.existsSync(metaPath)) {
     const content = fs.readFileSync(metaPath, 'utf8');
     meta = yaml.load(content) || meta;
@@ -395,11 +440,11 @@ async function handleAddonsCreate(name, options) {
 }
 
 async function handleWorkspaceCreate(name, workspacePath) {
-  
+
   // 获取用户的实际工作目录（pnpm 会设置 INIT_CWD）
   const scriptCwd = process.cwd();
   const userCwd = process.env.INIT_CWD || scriptCwd;
-  
+
   // 解析路径
   let resolvedPath;
   if (!workspacePath) {
@@ -415,7 +460,7 @@ async function handleWorkspaceCreate(name, workspacePath) {
     // 相对路径，基于用户的实际工作目录解析
     resolvedPath = path.resolve(userCwd, workspacePath);
   }
-  
+
   // 规范化路径
   resolvedPath = path.normalize(resolvedPath);
 
@@ -436,7 +481,7 @@ async function handleWorkspaceCreate(name, workspacePath) {
   // 初始化工作区配置文件
   const configPath = path.join(resolvedPath, '.qclrc');
   let configCreated = false;
-  
+
   if (!fs.existsSync(configPath)) {
     const globalConfig = Config.load() || new Config();
     const config = {
@@ -455,7 +500,7 @@ async function handleWorkspaceCreate(name, workspacePath) {
   if (configCreated) {
     console.log(`配置文件已初始化: ${configPath}`);
   }
-  
+
   process.exit(0);
 }
 
@@ -488,11 +533,11 @@ async function handleWorkspaceUse(name) {
   // 用户需要 cd 到工作区目录才能使用该工作区
   const userCwd = process.env.INIT_CWD || process.cwd();
   const workspace = WorkspaceManagerConfig.findWorkspace(name, userCwd);
-  
+
   if (!workspace) {
     throw new Error(`工作区 '${name}' 不存在`);
   }
-  
+
   console.log(`工作区 '${name}' 位于: ${workspace.path}`);
   console.log(`💡 提示: 使用 \`cd ${workspace.path}\` 切换到该工作区`);
 }
@@ -515,7 +560,7 @@ async function handleWorkspaceDelete(name) {
 async function handleConfigGet(key) {
   const currentDir = process.cwd();
   const qclocal = Config.loadQclocal(currentDir);
-  
+
   if (qclocal) {
     if (key === 'project' && qclocal.project) {
       console.log(qclocal.project);
@@ -528,7 +573,7 @@ async function handleConfigGet(key) {
   }
 
   const workspace = WorkspaceManagerConfig.getCurrent();
-  
+
   if (workspace && workspace.config) {
     if (key === 'username' && workspace.config.username) {
       console.log(workspace.config.username);
@@ -561,7 +606,7 @@ async function handleConfigSet(key, value) {
 
 async function handleConfigList() {
   console.log('配置信息:');
-  
+
   const workspace = WorkspaceManagerConfig.getCurrent();
   if (workspace) {
     console.log(`当前工作区: ${workspace.name}`);
@@ -620,7 +665,7 @@ async function handleInit(options) {
     while (true) {
       const repoType = await question('\n仓库类型 (local/github/gitlab/ftp，或 \'done\' 完成): ');
       const type = repoType.trim().toLowerCase();
-      
+
       if (type === 'done' || !type) {
         break;
       }
@@ -721,14 +766,14 @@ async function handleInit(options) {
   fs.writeFileSync(configPath, yaml.dump(config));
   console.log(`\n✅ 配置文件已创建: ${configPath}`);
   console.log('💡 提示: 你可以随时编辑此文件来修改配置');
-  
+
   rl.close();
   process.exit(0);
 }
 
 async function handleRepoCreate(name, options) {
-  const repoPath = path.resolve(options.path || '.');
-  
+  const repoPath = resolvePathFromCurrentDir(options.path || '.');
+
   if (!fs.existsSync(repoPath)) {
     fs.mkdirSync(repoPath, { recursive: true });
     console.log(`✅ 已创建仓库目录: ${repoPath}`);
@@ -767,26 +812,26 @@ async function handleRepoInit(options) {
   // 重要：当通过 pnpm 执行时，process.cwd() 可能返回项目根目录
   // 我们需要从环境变量或命令行参数中获取实际的工作目录
   // 但更可靠的方法是：如果提供了相对路径 '.'，应该基于调用时的实际工作目录
-  
+
   // 获取当前工作目录
   let cwd = process.cwd();
-  
+
   // 检查是否通过 pnpm 执行（通过检查 process.env）
   // 如果 PWD 环境变量存在（Unix）或通过其他方式获取
   // 但最可靠的方法是：如果用户提供了 '.'，我们应该使用调用时的实际目录
-  
+
   // 解析路径
   let repoPath;
   if (!options.path || options.path === '.') {
     // 没有提供路径或提供的是 '.'，使用当前工作目录
     // 但这里有个问题：通过 pnpm 执行时，cwd 可能是项目根目录
     // 我们需要检查是否有其他方式获取实际工作目录
-    
+
     // pnpm 会设置 INIT_CWD 环境变量为用户执行命令时的实际工作目录
     // 这是最可靠的方法来获取用户的实际工作目录
     const actualCwd = process.env.INIT_CWD || cwd;
     repoPath = actualCwd;
-    
+
     // 调试信息
     if (process.env.DEBUG) {
       console.log(`调试: process.cwd(): ${cwd}`);
@@ -797,22 +842,20 @@ async function handleRepoInit(options) {
     // 绝对路径，直接使用
     repoPath = options.path;
   } else {
-    // 相对路径，基于用户的实际工作目录解析
-    // pnpm 会设置 INIT_CWD 环境变量
-    const actualCwd = process.env.INIT_CWD || cwd;
-    repoPath = path.resolve(actualCwd, options.path);
+    // 相对路径，基于当前工作区目录解析
+    repoPath = resolvePathFromCurrentDir(options.path);
   }
-  
+
   // 规范化路径（处理 .. 和 . 等）
   repoPath = path.normalize(repoPath);
-  
+
   // 调试信息（可选，生产环境可以移除）
   if (process.env.DEBUG) {
     console.log(`调试: 当前工作目录: ${cwd}`);
     console.log(`调试: 提供的路径: ${options.path || '(未提供)'}`);
     console.log(`调试: 解析后的路径: ${repoPath}`);
   }
-  
+
   // 如果目录不存在，自动创建
   if (!fs.existsSync(repoPath)) {
     fs.mkdirSync(repoPath, { recursive: true });
@@ -938,39 +981,6 @@ repos:
   process.exit(0);
 }
 
-async function handlePlopRun(generator) {
-  const projectPath = process.cwd();
-  await TemplateManager.runPlop(projectPath, generator);
-}
-
-async function handlePlopList() {
-  const projectPath = process.cwd();
-  const plopfilePath = path.join(projectPath, 'plopfile.js');
-  
-  if (!fs.existsSync(plopfilePath)) {
-    throw new Error('未找到 plopfile.js，请确保在项目目录中运行此命令');
-  }
-
-  // 尝试读取 plopfile.js 并解析生成器
-  try {
-    const plopfileContent = fs.readFileSync(plopfilePath, 'utf8');
-    // 简单的正则匹配来提取生成器名称
-    const generatorMatches = plopfileContent.match(/plop\.setGenerator\(['"]([^'"]+)['"]/g);
-    
-    if (generatorMatches && generatorMatches.length > 0) {
-      console.log('可用的 plop 生成器:');
-      generatorMatches.forEach((match) => {
-        const name = match.match(/['"]([^'"]+)['"]/)[1];
-        console.log(`  - ${name}`);
-      });
-    } else {
-      console.log('未找到生成器定义，请运行: cocli plop run');
-    }
-  } catch (error) {
-    console.warn('无法解析 plopfile.js，请运行: cocli plop run');
-  }
-}
-
 async function handleHelp(options) {
   const config = Config.load();
   if (!config) {
@@ -986,8 +996,6 @@ async function handleHelp(options) {
     console.log('  cocli addons list');
     console.log('  cocli addons add <addon列表> [项目目录]');
     console.log('  cocli addons sync [项目目录]');
-    console.log('  cocli plop run [生成器名]  # 运行 plop 生成器');
-    console.log('  cocli plop list            # 列出可用的 plop 生成器');
     console.log('  cocli help [--template=<模板名>] [--addons=<addon名>]');
     console.log();
     console.log('更多信息，请使用: cocli help --template <模板名> 或 cocli help --addons <addon名>');
@@ -1004,7 +1012,7 @@ async function handleHelp(options) {
 
     try {
       const meta = await RepoManager.fetchMeta(url, repo, config);
-      
+
       if (options.template && meta.templates && meta.templates[options.template]) {
         const templateConfig = meta.templates[options.template];
         console.log(`模板: ${options.template}`);
@@ -1050,6 +1058,35 @@ async function handleHelp(options) {
   }
 }
 
+// 原子化模板命令（对标 shadcn）
+async function handleAtomicAdd(itemName, projectDir, options) {
+  const targetDir = projectDir || '.';
+  await AtomicTemplateManager.add(itemName, targetDir, {
+    version: options.version || null,
+    interactive: options.interactive || false,
+    force: options.force || false,
+  });
+  process.exit(0);
+}
+
+async function handleAtomicRemove(itemName, projectDir) {
+  const targetDir = projectDir || '.';
+  await AtomicTemplateManager.remove(itemName, targetDir);
+  process.exit(0);
+}
+
+async function handleAtomicList(type) {
+  await AtomicTemplateManager.list(type || null);
+  process.exit(0);
+}
+
+// 简化配置命令
+async function handleConfigEdit(projectDir) {
+  const targetDir = projectDir || '.';
+  await SimpleConfig.edit(targetDir);
+  process.exit(0);
+}
+
 module.exports = {
   handleAppCreate,
   handleAppList,
@@ -1068,11 +1105,14 @@ module.exports = {
   handleConfigGet,
   handleConfigSet,
   handleConfigList,
+  handleConfigEdit,
   handleInit,
   handleRepoCreate,
   handleRepoInit,
   handleHelp,
-  handlePlopRun,
-  handlePlopList,
+  // 原子化命令
+  handleAtomicAdd,
+  handleAtomicRemove,
+  handleAtomicList,
 };
 

@@ -1,0 +1,6 @@
+repos: 
+  local:
+    type: local
+    url: ../repo-test
+workspace:
+  name: workspace-test

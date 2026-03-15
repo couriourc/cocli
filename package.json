@@ -1,10 +1,12 @@
 {
-  "name": "cocli-home",
+  "name": "cocli",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "CoCli 脚手架工具",
   "type": "module",
-  "private": true,
+  "private": false,
+  "bin": {
+    "cocli": "./apps/main/bin/cocli.js"
+  },
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -15,7 +17,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
-    "test:all": "vitest run"
+    "test:all": "vitest run",
+    "cocli": "node apps/main/bin/cocli.js",
+    "postinstall": "node scripts/postinstall.js"
   },
   "keywords": [],
   "author": "",
@@ -27,12 +31,15 @@
     "directory": "apps/main"
   },
   "dependencies": {
-    "cocli-home": "github:couriourc/cocli",
     "turbo": "^2.8.16"
   },
+  "workspaces": [
+    "apps/*"
+  ],
   "devDependencies": {
     "@types/node": "^20.0.0",
     "execa": "^8.0.0",
+    "js-yaml": "^4.1.0",
     "vitepress": "^1.0.0",
     "vitest": "^1.0.0"
   }

@@ -1,9 +1,0 @@
-username: null
-password: null
-token: null
-proxy: null
-repos: []
-ai: null
-workspace:
-  name: test-workspace
-  description: null

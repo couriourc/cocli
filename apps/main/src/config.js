@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const os = require('os');
-
+const { getCurrentDir } = require('./util');
 class Config {
   constructor() {
     this.username = null;
@@ -17,15 +17,11 @@ class Config {
   static load() {
     // 优先使用用户执行命令时的实际工作目录（pnpm 会设置 INIT_CWD）
     const currentDir = process.env.INIT_CWD || process.cwd();
-    const homeDir = os.homedir();
-
+    console.log('currentDir', currentDir);
     const paths = [
       path.join(currentDir, '.qclrc'),
       path.join(currentDir, '.qcl.yaml'),
-      path.join(currentDir, '.qcl.yml'),
-      path.join(homeDir, '.qclrc'),
-      path.join(homeDir, '.qcl.yaml'),
-      path.join(homeDir, '.qcl.yml'),
+      path.join(currentDir, '.qcl.yml')
     ];
 
     for (const configPath of paths) {
@@ -43,8 +39,9 @@ class Config {
     return null;
   }
 
-  static loadFromParent(startDir) {
-    let current = path.resolve(startDir);
+  static loadFromParent() {
+    const currentDir = getCurrentDir();
+    let current = path.resolve(currentDir.path);
 
     while (current !== path.dirname(current)) {
       const paths = [
@@ -73,8 +70,9 @@ class Config {
     return null;
   }
 
-  static loadQclocal(dir) {
-    const qclocalPath = path.join(dir, '.qclocal');
+  static loadQclocal() {
+    const currentDir = getCurrentDir();
+    const qclocalPath = path.join(currentDir.path, '.qclocal');
     if (fs.existsSync(qclocalPath)) {
       try {
         const content = fs.readFileSync(qclocalPath, 'utf8');
@@ -86,13 +84,13 @@ class Config {
     return null;
   }
 
-  static loadQclocalFromDir(dir) {
-    const qclocal = Config.loadQclocal(dir);
+  static loadQclocalFromDir() {
+    const qclocal = Config.loadQclocal();
     if (!qclocal) return null;
 
     // 如果设置了 inherit 且 repos 为空，从父级目录继承
     if (qclocal.inherit && (!qclocal.repos || qclocal.repos.length === 0)) {
-      const parentConfig = Config.loadFromParent(dir);
+      const parentConfig = Config.loadFromParent();
       if (parentConfig) {
         qclocal.repos = parentConfig.repos;
       }
@@ -101,19 +99,19 @@ class Config {
     return qclocal;
   }
 
-  static loadWithPriority(dir) {
+  static loadWithPriority() {
     // 优先使用用户执行命令时的实际工作目录（pnpm 会设置 INIT_CWD）
-    const currentDir = dir || (process.env.INIT_CWD || process.cwd());
+    const currentDir = getCurrentDir();
 
     // 1. 优先从应用级 .qclocal 读取
-    const qclocal = Config.loadQclocalFromDir(currentDir);
+    const qclocal = Config.loadQclocalFromDir();
     if (qclocal && qclocal.repos && qclocal.repos.length > 0) {
       const authConfig = Config.load() || new Config();
       return { repos: qclocal.repos, config: authConfig };
     }
 
     // 2. 尝试从工作区配置读取（当前目录的 .qclrc）
-    const currentWorkspace = WorkspaceManagerConfig.getCurrent();
+    const currentWorkspace = getCurrentDir();
     if (currentWorkspace && currentWorkspace.config) {
       // 检查 repos 是否存在且是数组
       if (currentWorkspace.config.repos) {
@@ -134,7 +132,7 @@ class Config {
     }
 
     // 3. 从父级目录配置读取
-    const parentConfig = Config.loadFromParent(currentDir);
+    const parentConfig = Config.loadFromParent();
     if (parentConfig && parentConfig.repos) {
       // 处理 repos 格式：如果是对象，转换为数组
       let repos = parentConfig.repos;

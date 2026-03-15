@@ -1,15 +1,14 @@
 {
-  "name": "cocli",
+  "name": "main",
   "version": "0.1.0",
   "description": "CoCli 脚手架工具",
-  "main": "index.js",
+  "main": "src/index.js",
   "private": false,
-  "bin": {
-    "cocli": "./bin/cocli.js"
-  },
   "scripts": {
-    "dev": "cargo run",
-    "build": "cargo build --release"
+    "dev": "node src/index.js",
+    "build": "echo 'No build step required for Node.js'",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "keywords": [
     "cli",
@@ -22,11 +21,15 @@
   "packageManager": "pnpm@10.15.0",
   "files": [
     "bin",
+    "src",
     "README.md",
-    "Cargo.toml",
-    "Cargo.lock",
-    "src"
+    "INSTALL.md",
+    "PUBLISH.md"
   ],
+  "dependencies": {
+    "commander": "^11.0.0",
+    "js-yaml": "^4.1.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/couriourc/cocli.git"
@@ -36,6 +39,7 @@
   },
   "homepage": "https://github.com/couriourc/cocli#readme",
   "devDependencies": {
-    "vitepress": "^1.6.4"
+    "vitepress": "^1.6.4",
+    "vitest": "^1.0.0"
   }
 }

@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      cocli-home:
-        specifier: github:couriourc/cocli
-        version: https://codeload.github.com/couriourc/cocli/tar.gz/f096a9f7c47fc8dcb9d23d580ba7c507439c855a
       turbo:
         specifier: ^2.8.16
         version: 2.8.16
@@ -21,6 +18,9 @@ importers:
       execa:
         specifier: ^8.0.0
         version: 8.0.1
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
       vitepress:
         specifier: ^1.0.0
         version: 1.6.4(@algolia/client-search@5.49.2)(@types/node@20.19.37)(postcss@8.5.8)(search-insights@2.17.3)
@@ -29,10 +29,20 @@ importers:
         version: 1.6.1(@types/node@20.19.37)
 
   apps/main:
+    dependencies:
+      commander:
+        specifier: ^11.0.0
+        version: 11.1.0
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
     devDependencies:
       vitepress:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.49.2)(@types/node@20.19.37)(postcss@8.5.8)(search-insights@2.17.3)
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.37)
 
 packages:
 
@@ -612,6 +622,9 @@ packages:
     resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
     engines: {node: '>=10'}
 
+  argparse@2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+
   assertion-error@1.1.0:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
 
@@ -638,12 +651,12 @@ packages:
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
 
-  cocli-home@https://codeload.github.com/couriourc/cocli/tar.gz/f096a9f7c47fc8dcb9d23d580ba7c507439c855a:
-    resolution: {tarball: https://codeload.github.com/couriourc/cocli/tar.gz/f096a9f7c47fc8dcb9d23d580ba7c507439c855a}
-    version: 1.0.0
-
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
+
+  commander@11.1.0:
+    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
+    engines: {node: '>=16'}
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
@@ -749,6 +762,10 @@ packages:
 
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
+
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+    hasBin: true
 
   local-pkg@0.5.1:
     resolution: {integrity: sha512-9rrA30MRRP3gBD3HTGnC6cDFpaE1kVDWxWgqWJUN0RvDNAo+Nz/9GxB+nHOH0ifbVFy0hSA1V6vFDvnx54lTEQ==}
@@ -1648,6 +1665,8 @@ snapshots:
 
   ansi-styles@5.2.0: {}
 
+  argparse@2.0.1: {}
+
   assertion-error@1.1.0: {}
 
   birpc@2.9.0: {}
@@ -1674,12 +1693,9 @@ snapshots:
     dependencies:
       get-func-name: 2.0.2
 
-  cocli-home@https://codeload.github.com/couriourc/cocli/tar.gz/f096a9f7c47fc8dcb9d23d580ba7c507439c855a:
-    dependencies:
-      cocli: link:apps/main
-      turbo: 2.8.16
-
   comma-separated-tokens@2.0.3: {}
+
+  commander@11.1.0: {}
 
   confbox@0.1.8: {}
 
@@ -1801,6 +1817,10 @@ snapshots:
   isexe@2.0.0: {}
 
   js-tokens@9.0.1: {}
+
+  js-yaml@4.1.1:
+    dependencies:
+      argparse: 2.0.1
 
   local-pkg@0.5.1:
     dependencies:

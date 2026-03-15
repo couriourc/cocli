@@ -25,7 +25,6 @@
 ### 使用 Git Tags 发布版本
 
 1. **更新版本号**：
-   - `apps/main/Cargo.toml`
    - `apps/main/package.json`
 
 2. **提交更改**：
@@ -43,9 +42,9 @@
    ```
 
 4. **GitHub Actions 会自动**：
-   - 构建所有平台的二进制文件
+   - 验证 Node.js 包可以正常安装和运行
    - 创建 GitHub Release
-   - 上传二进制文件到 Release
+   - 发布 Release 说明
 
 ### 用户安装方式
 
@@ -65,10 +64,10 @@ pnpm add -g git+https://github.com/couriourc/cocli.git#v0.1.0
 ## 包结构
 
 **实际发布的包位于 `apps/main/` 目录**，包含：
-- `bin/` - 可执行文件脚本和二进制文件
+- `bin/` - 可执行文件脚本
+- `src/` - Node.js 源代码
 - `README.md` - 包说明文档
-- `Cargo.toml` / `Cargo.lock` - Rust 构建配置（用于从源码构建）
-- `src/` - Rust 源代码（用于从源码构建）
+- `package.json` - Node.js 包配置
 
 **根目录的 `package.json` 配置：**
 - `private: true` - 防止意外发布根目录
@@ -108,9 +107,6 @@ cocli --version
    git ls-remote --tags https://github.com/couriourc/cocli.git
    ```
 
-3. **检查构建依赖**：
-   从 Git 安装会自动构建，需要确保系统有 Rust 和 Cargo
-
-4. **使用预构建的二进制文件**：
-   可以从 GitHub Release 下载预构建的二进制文件
+3. **检查依赖**：
+   从 Git 安装需要确保系统有 Node.js 和 pnpm
 

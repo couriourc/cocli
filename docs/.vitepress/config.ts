@@ -1,108 +1,135 @@
-import { defineConfig } from 'vitepress'
-
-// 从环境变量获取 base 路径，默认为 '/'
-// 如果部署到 GitHub Pages 且仓库名不是 username.github.io，需要设置 base 为 '/仓库名/'
-const base = process.env.VITEPRESS_BASE || '/'
+import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-  base,
   title: 'CoCli',
-  description: '一个灵活、强大的项目脚手架工具，支持从多种来源（Git、FTP、本地目录）获取模板和插件',
+  description: '灵活的项目脚手架工具，支持多源模板、插件管理、工作区管理',
   
-  head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }]
-  ],
-
+  // 基础配置
+  base: '/',
+  lang: 'zh-CN',
+  
+  // 主题配置
   themeConfig: {
-    logo: '/logo.png',
-    
+    // 导航栏
     nav: [
-      { text: '首页', link: '/' },
       { text: '指南', link: '/guide/getting-started' },
-      { text: '命令', link: '/commands/' },
-      { text: '配置', link: '/config/' },
-      { text: '示例', link: '/examples/' },
-      { text: 'GitHub', link: 'https://github.com/couriourc/cocli' }
+      { text: '命令参考', link: '/guide/commands' },
+      { text: '配置', link: '/config/qclrc' },
+      { text: '示例', link: '/examples/basic' },
+      { text: 'GitHub', link: 'https://github.com/couriourc/cocli' },
     ],
-
+    
+    // 侧边栏
     sidebar: {
       '/guide/': [
         {
-          text: '开始',
+          text: '开始使用',
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
-            { text: '安装', link: '/guide/installation' },
-            { text: '初始化配置', link: '/guide/init' }
-          ]
+            { text: '命令参考', link: '/guide/commands' },
+          ],
         },
         {
-          text: '核心概念',
+          text: '核心功能',
           items: [
-            { text: '工作区', link: '/guide/workspace' },
-            { text: '应用', link: '/guide/app' },
-            { text: '模板', link: '/guide/template' },
-            { text: '插件', link: '/guide/addons' }
-          ]
+            { text: '模板系统', link: '/guide/templates' },
+            { text: '插件系统', link: '/guide/addons' },
+            { text: '工作区管理', link: '/guide/workspace' },
+            { text: '多源仓库', link: '/guide/repo' },
+          ],
         },
         {
-          text: '高级',
+          text: '高级用法',
           items: [
-            { text: '仓库源搭建', link: '/guide/repository-setup' }
-          ]
-        }
-      ],
-      '/commands/': [
-        {
-          text: '命令参考',
-          items: [
-            { text: '概述', link: '/commands/' },
-            { text: '应用管理', link: '/commands/app' },
-            { text: '模板管理', link: '/commands/template' },
-            { text: '插件管理', link: '/commands/addons' },
-            { text: '工作区管理', link: '/commands/workspace' },
-            { text: '配置管理', link: '/commands/config' },
-            { text: '初始化', link: '/commands/init' }
-          ]
-        }
+            { text: '高级功能', link: '/guide/advanced' },
+          ],
+        },
       ],
       '/config/': [
         {
-          text: '配置',
+          text: '配置参考',
           items: [
-            { text: '配置文件', link: '/config/' },
-            { text: '.qclrc', link: '/config/qclrc' },
-            { text: '.qclocal', link: '/config/qclocal' },
-            { text: '仓库配置', link: '/config/repos' },
-            { text: '元数据', link: '/config/meta' }
-          ]
-        }
+            { text: '.qclrc 配置', link: '/config/qclrc' },
+            { text: 'meta.yaml 配置', link: '/config/meta-yaml' },
+            { text: '环境变量', link: '/config/env' },
+          ],
+        },
       ],
       '/examples/': [
         {
-          text: '示例',
+          text: '使用示例',
           items: [
-            { text: '快速开始', link: '/examples/' },
-            { text: '创建 Vue 项目', link: '/examples/vue-project' },
-            { text: '使用工作区', link: '/examples/workspace' },
-            { text: '添加插件', link: '/examples/addons' },
-            { text: '配置继承', link: '/examples/inherit' }
-          ]
-        }
-      ]
+            { text: '基础示例', link: '/examples/basic' },
+            { text: 'Vue3 项目', link: '/examples/vue3-project' },
+            { text: '团队协作', link: '/examples/team' },
+            { text: '常见问题', link: '/examples/troubleshooting' },
+          ],
+        },
+      ],
     },
-
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/couriourc/cocli' }
-    ],
-
-    footer: {
-      message: 'Released under the ISC License.',
-      copyright: 'Copyright © 2024 CoCli'
-    },
-
+    
+    // 搜索配置
     search: {
-      provider: 'local'
-    }
-  }
-})
-
+      provider: 'local',
+      options: {
+        translations: {
+          button: {
+            buttonText: '搜索文档',
+            buttonAriaLabel: '搜索文档',
+          },
+          modal: {
+            noResultsText: '无法找到相关结果',
+            resetButtonTitle: '清除查询条件',
+            footer: {
+              selectText: '选择',
+              navigateText: '切换',
+            },
+          },
+        },
+      },
+    },
+    
+    // 社交链接
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/couriourc/cocli' },
+    ],
+    
+    // 页脚
+    footer: {
+      message: '基于 MIT 许可发布',
+      copyright: 'Copyright © 2024 CoCli',
+    },
+    
+    // 编辑链接
+    editLink: {
+      pattern: 'https://github.com/couriourc/cocli/edit/main/docs/:path',
+      text: '在 GitHub 上编辑此页',
+    },
+    
+    // 最后更新时间
+    lastUpdated: {
+      text: '最后更新于',
+    },
+    
+    // 返回顶部
+    returnToTopLabel: '返回顶部',
+    
+    // 侧边栏菜单
+    sidebarMenuLabel: '菜单',
+    darkModeSwitchLabel: '主题',
+  },
+  
+  // Markdown 配置
+  markdown: {
+    lineNumbers: true,
+    config: (md) => {
+      // 可以添加 markdown-it 插件
+    },
+  },
+  
+  // 头部配置
+  head: [
+    ['link', { rel: 'icon', href: '/logo.png' }],
+    ['meta', { name: 'theme-color', content: '#3498db' }],
+  ],
+});

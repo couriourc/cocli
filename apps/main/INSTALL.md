@@ -40,15 +40,14 @@ yarn global add git+https://github.com/couriourc/cocli.git
 yarn global add git+https://github.com/couriourc/cocli.git#v0.1.0
 ```
 
-## 从源码构建
+## 从源码运行
 
 ### 前置要求
 
-- [Rust](https://www.rust-lang.org/) 1.70 或更高版本
-- [Cargo](https://doc.rust-lang.org/cargo/)
-- [Node.js](https://nodejs.org/) 18+ 和 [pnpm](https://pnpm.io/) 10.15.0+
+- [Node.js](https://nodejs.org/) 18+ 
+- [pnpm](https://pnpm.io/) 10.15.0+
 
-### 构建步骤
+### 运行步骤
 
 1. **克隆仓库**
 
@@ -63,23 +62,11 @@ yarn global add git+https://github.com/couriourc/cocli.git#v0.1.0
    pnpm install
    ```
 
-3. **构建项目**
+3. **运行**
 
    ```bash
    cd apps/main
-   pnpm build
-   # 或
-   cargo build --release
-   ```
-
-4. **运行**
-
-   ```bash
-   # 使用 cargo 运行
-   cargo run -- --help
-
-   # 或使用构建后的二进制文件
-   ./target/release/cocli --help
+   node src/index.js --help
    ```
 
 ## 验证安装
@@ -145,14 +132,13 @@ yarn global remove @couriourc/cocli
    pnpm add -g git+https://github.com/couriourc/cocli.git --force
    ```
 
-### 构建失败
+### 安装失败
 
-如果从 Git 安装时构建失败：
+如果从 Git 安装时失败：
 
-1. 确保已安装 Rust 和 Cargo
-2. 确保已安装 Node.js 和 pnpm
-3. 检查网络连接（需要下载 Rust 依赖）
-4. 尝试从源码构建（见上方"从源码构建"部分）
+1. 确保已安装 Node.js 和 pnpm
+2. 检查网络连接（需要下载 npm 依赖）
+3. 尝试从源码运行（见上方"从源码运行"部分）
 
 ### 权限问题
 

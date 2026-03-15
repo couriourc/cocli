@@ -1,215 +1,263 @@
-# 插件 (Addons)
+# 插件系统
 
-插件是可重用的代码模块，可以添加到项目中以扩展功能。CoCli 提供了强大的插件管理系统。
+CoCli 的插件系统允许你扩展项目功能，支持添加、同步、移除插件。
 
-## 查看可用插件
+## 什么是插件
 
-### 简单列表
+插件是可重用的功能模块，可以添加到项目中以扩展功能。插件可以是：
+
+- UI 组件库
+- 工具函数库
+- 配置文件
+- 构建脚本
+- 其他功能模块
+
+## 添加插件
+
+### 创建项目时添加
+
+在创建项目时添加插件：
+
+```bash
+cocli create my-app --template=vue3 --addons=my-plugin
+```
+
+### 添加到现有项目
+
+在现有项目中添加插件：
+
+```bash
+# 添加单个插件
+cocli addons add my-plugin
+
+# 添加多个插件
+cocli addons add plugin1,plugin2,plugin3
+
+# 指定项目目录
+cocli addons add my-plugin ./my-project
+```
+
+**输出：**
+
+```
+正在下载 addon my-plugin 到 ./addons/my-plugin...
+✅ Addons 添加成功！
+💡 提示: 使用 `cocli addons sync` 同步所有配置的插件
+```
+
+## 列出插件
+
+### 列出所有可用插件
 
 ```bash
 cocli addons list
 ```
 
-输出示例：
+**输出：**
 
 ```
 可用的 addons:
-  - add
-  - minus
-  - vue2-funs
-  - vue3-funs
+  - my-plugin
+  - another-plugin
+  - utility-plugin
 ```
 
-### 详细信息
-
-使用 `-v` 或 `--verbose` 查看详细信息：
+### 显示详细信息
 
 ```bash
-cocli addons list -v
+cocli addons list --verbose
 ```
 
-输出包括：
-- 插件来源
-- 路径配置
-- README.md 内容
+**输出：**
 
-## 查看插件详情
+```
+可用的 addons (详细信息):
 
-使用 `cocli addons detail` 查看特定插件的完整信息：
+my-plugin
+  来源: https://github.com/user/repo
+  路径配置:
+    - addons/my-plugin/**
+  详细信息:
+    # My Plugin
+    
+    这是一个功能强大的插件...
+```
+
+### 查看插件详情
 
 ```bash
-cocli addons detail vue3-funs
-```
-
-## 添加插件
-
-使用 `cocli addons add` 添加插件到项目：
-
-```bash
-# 添加到当前目录
-cocli addons add vue3-funs .
-
-# 添加到指定项目
-cocli addons add vue3-funs my-project
-
-# 添加多个插件
-cocli addons add vue3-funs,add,minus .
-```
-
-### 插件安装位置
-
-插件会被安装到 `{项目目录}/{addons.target_dir}/{插件名}/` 目录下。
-
-例如，如果 `addons.target_dir` 为 `./addons`，插件会安装在：
-
-```
-my-app/
-  └── addons/
-      ├── vue3-funs/
-      ├── add/
-      └── minus/
+cocli addons detail my-plugin
 ```
 
 ## 同步插件
 
-使用 `cocli addons sync` 根据 `.qclocal` 配置同步插件：
+同步项目中配置的所有插件：
 
 ```bash
-cocli addons sync .
+cocli addons sync
 ```
 
-这会根据 `.qclocal` 文件中的 `addons.include` 列表同步所有配置的插件。
+这会根据 `.qclocal` 文件中的配置同步所有插件。
+
+## 移除插件
+
+插件文件需要手动删除，但可以从配置中移除：
+
+编辑 `.qclocal` 文件，从 `addons.include` 中移除插件名称。
 
 ## 插件配置
 
-在 `.qclocal` 文件中配置插件：
+### 统一管理（推荐）
+
+在 `meta.yaml` 中统一配置：
 
 ```yaml
 addons:
-  # 插件安装目录
-  target_dir: ./addons
-  
-  # 需要同步的插件列表
-  include:
-    - vue3-funs
-    - add
-    - minus
+  root: ./addons/
+  target_dir: ./addons/
 ```
 
-## 插件定义
+然后在 `addons/` 目录下创建插件目录。
 
-插件在仓库的 `meta.yaml` 文件中定义：
+### 单独配置
 
-```yaml
-addons:
-  vue3-funs:
-    root: ./addons/vue3-funs/**
-  
-  add:
-    root: ./addons/add/**
-```
-
-## 创建自定义插件
-
-有两种方式创建自定义插件：使用命令快速创建，或手动创建。
-
-### 方式一：使用命令创建（推荐）
-
-使用 `cocli addons create` 命令可以快速创建插件：
-
-```bash
-# 在仓库目录中创建插件
-cd /path/to/my-addons
-cocli addons create my-plugin
-
-# 指定插件路径
-cocli addons create vue3-utils --path addons/vue3-utils
-
-# 指定仓库目录
-cocli addons create my-plugin --repo-dir /path/to/repo
-```
-
-命令会自动：
-1. 创建插件目录结构
-2. 生成 README.md 文件
-3. 更新或创建 `meta.yaml` 文件
-
-### 方式二：手动创建
-
-#### 1. 准备插件文件
-
-创建插件目录结构：
-
-```
-my-addons/
-  ├── meta.yaml
-  └── addons/
-      └── my-plugin/
-          ├── README.md
-          ├── src/
-          └── ...
-```
-
-#### 2. 添加 README.md
-
-在插件目录中添加 `README.md` 文件，描述插件的功能和使用方法：
-
-```markdown
-# My Plugin
-
-提供 XXX 功能。
-
-## 使用方法
-
-\`\`\`javascript
-import { feature } from './my-plugin'
-\`\`\`
-```
-
-#### 3. 定义 meta.yaml
+为每个插件单独配置：
 
 ```yaml
 addons:
   my-plugin:
     root: ./addons/my-plugin/**
+    description: 我的插件
 ```
 
-#### 4. 配置仓库
+## 插件结构
 
-在 `.qclrc` 中添加仓库配置。
+### 基本结构
 
-#### 5. 使用插件
+```
+addons/
+└── my-plugin/
+    ├── index.js
+    ├── README.md
+    └── package.json
+```
+
+### 复杂结构
+
+```
+addons/
+└── my-plugin/
+    ├── src/
+    │   ├── components/
+    │   ├── utils/
+    │   └── index.ts
+    ├── styles/
+    │   └── main.css
+    ├── README.md
+    └── package.json
+```
+
+## 创建插件
+
+### 使用命令创建
 
 ```bash
-cocli addons add my-plugin .
+cocli addons create my-plugin
 ```
 
-## 插件开发最佳实践
+这会创建插件目录结构和基本文件。
 
-1. **添加 README.md** - 帮助用户了解插件功能
-2. **使用清晰的目录结构** - 便于维护
-3. **提供示例代码** - 在 README 中包含使用示例
-4. **版本管理** - 使用 Git 管理插件版本
+### 手动创建
 
-## 相关命令
+1. 在仓库的 `addons/` 目录下创建插件目录
+2. 添加插件文件
+3. 在 `meta.yaml` 中配置插件
 
-- `cocli addons list` - 列出可用插件
-- `cocli addons detail` - 查看插件详情
-- `cocli addons create` - 创建新插件
-- `cocli addons add` - 添加插件
-- `cocli addons sync` - 同步插件
+**示例：**
+
+```yaml
+addons:
+  my-plugin:
+    root: addons/my-plugin/**
+    description: 我的自定义插件
+```
+
+## 插件开发
+
+### 基本要求
+
+1. **README.md**：插件说明文档
+2. **入口文件**：插件的入口文件（index.js/index.ts）
+3. **配置**：在 `meta.yaml` 中配置插件
+
+### 示例插件
+
+**addons/my-plugin/index.js：**
+
+```javascript
+export default {
+  name: 'my-plugin',
+  version: '1.0.0',
+  install(app) {
+    // 插件安装逻辑
+    console.log('My Plugin installed!');
+  },
+};
+```
+
+**addons/my-plugin/README.md：**
+
+```markdown
+# My Plugin
+
+这是一个功能强大的插件。
+
+## 使用方法
+
+```javascript
+import MyPlugin from './addons/my-plugin';
+```
+```
+
+## 插件依赖
+
+插件可以依赖其他插件，在配置中声明：
+
+```yaml
+addons:
+  my-plugin:
+    root: addons/my-plugin/**
+    dependencies:
+      - base-plugin
+```
+
+## 最佳实践
+
+1. **命名规范**：使用 kebab-case 命名插件
+2. **文档完善**：为插件添加清晰的 README
+3. **版本管理**：使用语义化版本号
+4. **依赖管理**：明确声明插件依赖
+5. **测试覆盖**：为插件编写测试用例
 
 ## 常见问题
 
-### Q: 插件安装在哪里？
+### Q: 插件添加失败怎么办？
 
-A: 插件会安装到 `{项目目录}/{addons.target_dir}/{插件名}/` 目录下。
+A: 检查以下几点：
+1. 插件名称是否正确
+2. 仓库配置是否正确
+3. 网络连接是否正常
 
 ### Q: 如何更新插件？
 
-A: 使用 `cocli addons sync` 可以更新所有配置的插件。
+A: 删除插件目录，然后重新添加：
 
-### Q: 如何移除插件？
+```bash
+rm -rf addons/my-plugin
+cocli addons add my-plugin
+```
 
-A: 手动删除插件目录，并从 `.qclocal` 的 `addons.include` 中移除插件名称。
+### Q: 插件可以嵌套吗？
+
+A: 可以，但建议保持扁平结构，避免过度嵌套。
 

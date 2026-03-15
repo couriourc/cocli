@@ -3,6 +3,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const RepoManager = require('./repo');
 const { Config } = require('./config');
+const { resolvePathFromCurrentDir, getCurrentDir } = require('./util');
 
 class TemplateManager {
   static async create(templateName, addons, projectName, config) {
@@ -46,7 +47,7 @@ class TemplateManager {
       : [foundTemplate.root];
 
     // 创建项目目录
-    const projectPath = path.resolve(projectName);
+    const projectPath = resolvePathFromCurrentDir(projectName);
     if (fs.existsSync(projectPath)) {
       throw new Error(`目录已存在: ${projectName}`);
     }
@@ -62,19 +63,30 @@ class TemplateManager {
       config
     );
 
-    // 检查是否需要设置 plop（重新获取 meta 以包含完整配置）
+    // 检查是否需要设置 hygen（重新获取 meta 以包含完整配置）
+    let shouldRunHygen = false;
+    let hygenConfig = null;
     try {
       const meta = await RepoManager.fetchMeta(repoUrl, repoConfig, config);
-      if (meta.plop && meta.plop.enabled) {
-        await this.setupPlop(projectPath, repoUrl, repoConfig, config, meta.plop);
-      } else if (foundTemplate.plop) {
-        // 模板级别的 plop 配置
-        await this.setupPlop(projectPath, repoUrl, repoConfig, config, {
-          plopfile: foundTemplate.plopfile || 'plopfile.js',
-        });
+      if (meta.hygen && meta.hygen.enabled) {
+        await this.setupHygen(projectPath, repoUrl, repoConfig, config, meta.hygen);
+        shouldRunHygen = true;
+        hygenConfig = meta.hygen;
+      } else if (foundTemplate.hygen) {
+        // 模板级别的 hygen 配置
+        hygenConfig = {
+          templatesDir: foundTemplate.templatesDir || '_templates',
+        };
+        await this.setupHygen(projectPath, repoUrl, repoConfig, config, hygenConfig);
+        shouldRunHygen = true;
       }
     } catch (error) {
-      console.warn(`警告: 设置 plop 时出错: ${error.message}`);
+      console.warn(`警告: 设置 hygen 时出错: ${error.message}`);
+    }
+
+    // 如果配置了 Hygen，自动进入交互模式
+    if (shouldRunHygen) {
+      await this.runHygenInteractive(projectPath);
     }
 
     // 处理 addons
@@ -135,19 +147,31 @@ class TemplateManager {
       }
     }
 
-    // 创建或更新 .qclocal 文件
-    await this.createOrUpdateQclocal(
-      projectPath,
-      projectName,
-      templateName,
-      addons || [],
-      [repoConfig]
-    );
+    // 创建或更新 .qclocal 文件（可选，无侵入）
+    // 如果用户不需要 CoCli 依赖，可以跳过此步骤
+    const createConfig = process.env.COCLI_NO_CONFIG !== 'true';
+    if (createConfig) {
+      await this.createOrUpdateQclocal(
+        projectPath,
+        projectName,
+        templateName,
+        addons || [],
+        [repoConfig]
+      );
+    }
 
-    console.log(`✅ 项目 ${projectName} 创建成功！`);
-    console.log(`💡 提示: 使用 \`cd ${projectName}\` 进入项目目录`);
-    if (addons && addons.length > 0) {
-      console.log('💡 提示: 使用 `cocli addons list` 查看所有可用插件');
+    // 如果没有运行 Hygen 交互模式，才显示这些提示
+    if (!shouldRunHygen) {
+      console.log(`✅ 项目 ${projectName} 创建成功！`);
+      console.log(`💡 提示: 使用 \`cd ${projectName}\` 进入项目目录`);
+      if (!createConfig) {
+        console.log('💡 提示: 项目未创建配置文件，完全无 CoCli 依赖');
+      } else {
+        console.log('💡 提示: 项目不绑定 CoCli 依赖，可安全删除 .qclocal 文件');
+      }
+      if (addons && addons.length > 0) {
+        console.log('💡 提示: 使用 `cocli addons list` 查看所有可用插件');
+      }
     }
   }
 
@@ -199,8 +223,7 @@ class TemplateManager {
 
   static async listTemplates(config) {
     // 优先使用用户执行命令时的实际工作目录（pnpm 会设置 INIT_CWD）
-    const currentDir = process.env.INIT_CWD || process.cwd();
-    const { repos, config: configForAuth } = Config.loadWithPriority(currentDir);
+    const { repos, config: configForAuth } = Config.loadWithPriority();
 
     const allTemplates = new Set();
 
@@ -237,8 +260,7 @@ class TemplateManager {
 
   static async listAddons(config, verbose) {
     // 优先使用用户执行命令时的实际工作目录（pnpm 会设置 INIT_CWD）
-    const currentDir = process.env.INIT_CWD || process.cwd();
-    const { repos, config: configForAuth } = Config.loadWithPriority(currentDir);
+    const { repos, config: configForAuth } = Config.loadWithPriority();
 
     if (verbose) {
       const addonDetails = [];
@@ -354,8 +376,7 @@ class TemplateManager {
   }
 
   static async detailAddon(config, addonName) {
-    const currentDir = process.cwd();
-    const { repos, config: configForAuth } = Config.loadWithPriority(currentDir);
+    const { repos, config: configForAuth } = Config.loadWithPriority();
 
     let foundAddon = null;
     let repoUrl = null;
@@ -440,35 +461,27 @@ class TemplateManager {
     return null;
   }
 
-  static async setupPlop(projectPath, repoUrl, repoConfig, config, plopConfig) {
-    const plopfile = plopConfig.plopfile || 'plopfile.js';
+  static async setupHygen(projectPath, repoUrl, repoConfig, config, hygenConfig) {
+    const templatesDirName = hygenConfig.templatesDir || '_templates';
     
-    console.log('正在设置 plop...');
+    console.log('正在设置 hygen...');
     
-    // 从仓库中读取 plopfile.js
+    // 从仓库中读取 _templates 目录
     const tempDir = await RepoManager.syncRepo(repoUrl, repoConfig, config);
     
     try {
-      const plopfilePath = path.join(tempDir, plopfile);
-      if (fs.existsSync(plopfilePath)) {
-        // 复制 plopfile.js 到项目根目录
-        fs.copyFileSync(plopfilePath, path.join(projectPath, plopfile));
-        console.log(`✅ 已复制 ${plopfile}`);
-        
-        // 检查是否有 templates 目录需要复制
-        const templatesDir = path.join(tempDir, 'templates');
-        if (fs.existsSync(templatesDir) && fs.statSync(templatesDir).isDirectory()) {
-          const projectTemplatesDir = path.join(projectPath, 'templates');
-          if (!fs.existsSync(projectTemplatesDir)) {
-            this.copyDirRecursive(templatesDir, projectTemplatesDir);
-            console.log('✅ 已复制 templates 目录');
-          }
+      const templatesDir = path.join(tempDir, templatesDirName);
+      if (fs.existsSync(templatesDir) && fs.statSync(templatesDir).isDirectory()) {
+        const projectTemplatesDir = path.join(projectPath, templatesDirName);
+        if (!fs.existsSync(projectTemplatesDir)) {
+          this.copyDirRecursive(templatesDir, projectTemplatesDir);
+          console.log(`✅ 已复制 ${templatesDirName} 目录`);
         }
         
-        // 更新 package.json，添加 plop 依赖和脚本
-        await this.updatePackageJsonForPlop(projectPath);
+        // 更新 package.json，添加 hygen 依赖和脚本
+        await this.updatePackageJsonForHygen(projectPath);
       } else {
-        console.warn(`警告: 未找到 ${plopfile}，跳过 plop 设置`);
+        console.warn(`警告: 未找到 ${templatesDirName} 目录，跳过 hygen 设置`);
       }
     } finally {
       if (fs.existsSync(tempDir)) {
@@ -493,7 +506,7 @@ class TemplateManager {
     }
   }
 
-  static async updatePackageJsonForPlop(projectPath) {
+  static async updatePackageJsonForHygen(projectPath) {
     const packageJsonPath = path.join(projectPath, 'package.json');
     
     if (!fs.existsSync(packageJsonPath)) {
@@ -502,15 +515,15 @@ class TemplateManager {
         name: path.basename(projectPath),
         version: '0.1.0',
         scripts: {
-          g: 'plop',
-          generate: 'plop',
+          g: 'hygen',
+          generate: 'hygen',
         },
         devDependencies: {
-          plop: '^4.0.5',
+          hygen: '^6.2.11',
         },
       };
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-      console.log('✅ 已创建 package.json 并添加 plop 配置');
+      console.log('✅ 已创建 package.json 并添加 hygen 配置');
     } else {
       // 更新现有的 package.json
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -519,60 +532,81 @@ class TemplateManager {
         packageJson.scripts = {};
       }
       if (!packageJson.scripts.g) {
-        packageJson.scripts.g = 'plop';
+        packageJson.scripts.g = 'hygen';
       }
       if (!packageJson.scripts.generate) {
-        packageJson.scripts.generate = 'plop';
+        packageJson.scripts.generate = 'hygen';
       }
       
       if (!packageJson.devDependencies) {
         packageJson.devDependencies = {};
       }
-      if (!packageJson.devDependencies.plop) {
-        packageJson.devDependencies.plop = '^4.0.5';
+      if (!packageJson.devDependencies.hygen) {
+        packageJson.devDependencies.hygen = '^6.2.11';
       }
       
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-      console.log('✅ 已更新 package.json 添加 plop 配置');
+      console.log('✅ 已更新 package.json 添加 hygen 配置');
     }
   }
 
-  static async runPlop(projectPath, generator) {
-    const plopfilePath = path.join(projectPath, 'plopfile.js');
-    
-    if (!fs.existsSync(plopfilePath)) {
-      throw new Error('未找到 plopfile.js，请确保项目已配置 plop');
-    }
-
+  static async runHygenInteractive(projectPath) {
     const { exec } = require('child_process');
     const { promisify } = require('util');
     const execAsync = promisify(exec);
 
-    try {
-      // 检查是否安装了 plop
-      await execAsync('npm list plop', { cwd: projectPath }).catch(() => {
-        throw new Error('plop 未安装，请先运行: npm install 或 pnpm install');
-      });
+    console.log('\n🎨 正在启动 Hygen 交互模式...');
+    console.log('💡 提示: 你可以使用 Hygen 生成器来创建项目结构\n');
 
-      // 运行 plop
-      const command = generator 
-        ? `npx plop ${generator}`
-        : 'npx plop';
-      
-      console.log(`正在运行 plop${generator ? ` ${generator}` : ''}...`);
-      const { stdout, stderr } = await execAsync(command, {
+    try {
+      // 检查是否已安装依赖
+      const nodeModulesPath = path.join(projectPath, 'node_modules');
+      const hasNodeModules = fs.existsSync(nodeModulesPath) && 
+                            fs.existsSync(path.join(nodeModulesPath, 'hygen'));
+
+      if (!hasNodeModules) {
+        console.log('📦 正在安装依赖...');
+        // 检测包管理器
+        const hasPnpmLock = fs.existsSync(path.join(projectPath, 'pnpm-lock.yaml'));
+        const hasYarnLock = fs.existsSync(path.join(projectPath, 'yarn.lock'));
+        const hasPackageLock = fs.existsSync(path.join(projectPath, 'package-lock.json'));
+
+        let installCommand;
+        if (hasPnpmLock) {
+          installCommand = 'pnpm install';
+        } else if (hasYarnLock) {
+          installCommand = 'yarn install';
+        } else {
+          installCommand = 'npm install';
+        }
+
+        await execAsync(installCommand, {
+          cwd: projectPath,
+          stdio: 'inherit',
+        });
+        console.log('✅ 依赖安装完成\n');
+      }
+
+      // 运行 hygen 进入交互模式
+      console.log('🚀 启动 Hygen...\n');
+      await execAsync('npx hygen', {
         cwd: projectPath,
         stdio: 'inherit',
       });
-      
-      if (stderr && !stderr.includes('plop')) {
-        console.error(stderr);
-      }
     } catch (error) {
-      throw new Error(`运行 plop 失败: ${error.message}`);
+      // 如果用户取消或出错，不抛出错误，只是提示
+      if (error.code === 'SIGINT' || error.signal === 'SIGINT') {
+        console.log('\n\n✅ 项目创建完成！');
+        console.log('💡 提示: 你可以稍后使用 `hygen` 或 `npm run g` 来运行生成器');
+      } else {
+        console.warn(`\n⚠️  运行 Hygen 时出错: ${error.message}`);
+        console.log('💡 提示: 你可以稍后使用 `hygen` 或 `npm run g` 来运行生成器');
+      }
     }
   }
+
 }
 
 module.exports = TemplateManager;
+
 

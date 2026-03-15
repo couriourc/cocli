@@ -73,18 +73,6 @@ templateCmd
   .description('创建新模板')
   .action(wrapper(commands.handleTemplateCreate));
 
-// Plop 命令
-const plopCmd = program.command('plop');
-plopCmd
-  .command('run [generator]')
-  .description('运行 plop 生成器（需要在项目目录中）')
-  .action(wrapper(commands.handlePlopRun));
-
-plopCmd
-  .command('list')
-  .description('列出可用的 plop 生成器')
-  .action(wrapper(commands.handlePlopList));
-
 // Addons 命令
 const addonsCmd = program.command('addons');
 addonsCmd
@@ -132,6 +120,11 @@ configCmd
   .description('列出所有配置')
   .action(wrapper(commands.handleConfigList));
 
+configCmd
+  .command('edit [projectDir]')
+  .description('可视化编辑配置文件（cocli.json）')
+  .action(wrapper(commands.handleConfigEdit));
+
 // 初始化命令
 program
   .command('init')
@@ -159,6 +152,31 @@ repoCmd
     // pnpm 会设置 INIT_CWD 环境变量为实际的工作目录
     const targetPath = positionalPath || options.path || '.';
     wrapper(commands.handleRepoInit)({ path: targetPath });
+  });
+
+// 原子化模板命令（对标 shadcn，极简命令）
+program
+  .command('add <item> [projectDir]')
+  .option('-v, --version <version>', '指定版本')
+  .option('-f, --force', '强制覆盖已存在的项')
+  .option('-i, --interactive', '交互模式')
+  .description('添加原子化模板片段（对标 shadcn）')
+  .action((item, projectDir, options) => {
+    wrapper(commands.handleAtomicAdd)(item, projectDir, options);
+  });
+
+program
+  .command('remove <item> [projectDir]')
+  .description('移除原子化模板片段')
+  .action((item, projectDir) => {
+    wrapper(commands.handleAtomicRemove)(item, projectDir);
+  });
+
+program
+  .command('list [type]')
+  .description('列出所有可用的模板项（component/module/template/addon）')
+  .action((type) => {
+    wrapper(commands.handleAtomicList)(type);
   });
 
 // 向后兼容：create 命令（已废弃）

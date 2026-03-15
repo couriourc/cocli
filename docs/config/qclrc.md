@@ -1,159 +1,208 @@
-# .qclrc 配置文件
+# .qclrc 配置详解
 
-`.qclrc` 是 CoCli 的主要配置文件，用于配置全局设置和仓库信息。
+`.qclrc` 是 CoCli 的配置文件，支持 YAML 格式。
 
-## 文件位置
+## 配置文件位置
 
-CoCli 会按以下优先级查找配置文件（找到第一个存在的文件即使用）：
+配置文件按以下优先级查找：
 
-1. **当前工作目录**：`.qclrc`、`.qcl.yaml`、`.qcl.yml`
-2. **用户主目录**：`~/.qclrc`、`~/.qcl.yaml`、`~/.qcl.yml`
-3. **工作区目录**：`{workspace}/.qclrc`（如果设置了当前工作区）
+1. 当前目录（`.qclrc`）
+2. 父级目录（向上查找）
+3. 用户主目录（`~/.qclrc`）
 
-## 配置格式
+## 配置结构
+
+### 基本结构
 
 ```yaml
-# 全局认证信息（可选，会被仓库级别的配置覆盖）
-username: your-username
-password: your-password
-token: your-token
+# 工作区配置（可选）
+workspace:
+  name: my-workspace
+  description: 我的工作区
 
-# 代理配置（可选）
-proxy:
-  url: http://proxy.example.com:8080
-  # 或
-  host: proxy.example.com
-  port: 8080
-  username: proxy-user
-  password: proxy-pass
-
-# 仓库列表
+# 仓库配置
 repos:
-  # 本地目录仓库
-  - local:
-      type: local
-      url: /absolute/path/to/repo
-      # 或相对路径（相对于当前工作目录或可执行文件位置）
-      # url: ./relative/path/to/repo
-
-  # FTP 仓库
-  - ftp:
-      type: ftp
-      url: ftp://ftp.example.com/path/to/repo
-      username: ftp-username  # 可选，优先于全局配置
-      password: ftp-password    # 可选，优先于全局配置
-
-  # GitHub 仓库
   - github:
       type: git
-      repo: https://github.com/username/repo.git
-      username: github-username  # 可选
-      password: github-password  # 可选
-      token: github-token         # 可选，优先于 username/password
+      repo: https://github.com/user/repo
+  - local:
+      type: local
+      url: ./templates
 
-  # GitLab 仓库
-  - gitlab:
-      type: gitlab
-      repo: https://gitlab.com/username/repo.git
-      username: gitlab-username  # 可选
-      password: gitlab-password  # 可选
-      token: gitlab-token         # 可选
-      git-config:                 # 可选的 Git 配置
-        username: git-username
-        password: git-password
+# 全局认证（可选）
+username: my-user
+password: my-password
+token: my-token
+
+# 代理配置（可选）
+proxy: http://proxy.example.com:8080
 ```
 
-## 配置字段说明
+## 配置项说明
 
-### 全局认证信息
+### workspace
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `username` | `string` | 全局用户名（可选） |
-| `password` | `string` | 全局密码（可选） |
-| `token` | `string` | 全局 Token（可选） |
+工作区配置。
 
-这些信息会被所有仓库使用，除非仓库级别有单独配置。
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | ✅ | 工作区名称 |
+| `description` | string | ❌ | 工作区描述 |
 
-### 代理配置
+**示例：**
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `proxy.url` | `string` | 代理 URL（格式：`http://host:port`） |
-| `proxy.host` | `string` | 代理主机名 |
-| `proxy.port` | `number` | 代理端口 |
-| `proxy.username` | `string` | 代理用户名（可选） |
-| `proxy.password` | `string` | 代理密码（可选） |
+```yaml
+workspace:
+  name: my-workspace
+  description: 我的工作区
+```
 
-### 仓库配置
+### repos
 
-仓库配置是一个数组，每个元素代表一个仓库。支持以下类型：
+仓库配置列表。
 
-- **local** - 本地目录仓库
-- **github** - GitHub 仓库
-- **gitlab** - GitLab 仓库
-- **ftp** - FTP 服务器仓库
+#### GitHub 仓库
 
-## 配置优先级
+```yaml
+repos:
+  - github:
+      type: git
+      repo: https://github.com/user/repo
+      token: ghp_xxxxxxxxxxxx  # 可选
+      username: user            # 可选
+      password: pass            # 可选
+```
 
-1. **仓库级别配置** > **全局配置**
-2. **Token** > **用户名+密码**（对于 Git 仓库）
-3. **当前目录配置** > **用户主目录配置**
+#### GitLab 仓库
 
-## 示例配置
+```yaml
+repos:
+  - gitlab:
+      type: gitlab
+      repo: https://gitlab.com/user/repo
+      token: glpat-xxxxxxxxxxxx
+```
 
-### 最小配置
+#### 本地仓库
 
 ```yaml
 repos:
   - local:
       type: local
-      url: /path/to/local/repo
+      url: ./templates  # 相对路径或绝对路径
+```
+
+#### FTP 仓库
+
+```yaml
+repos:
+  - ftp:
+      type: ftp
+      url: ftp://example.com/templates
+      username: user
+      password: pass
+```
+
+### username / password / token
+
+全局认证信息（可选）。
+
+```yaml
+username: my-user
+password: my-password
+token: my-token
+```
+
+### proxy
+
+代理配置（可选）。
+
+```yaml
+proxy: http://proxy.example.com:8080
+```
+
+## 配置示例
+
+### 基础配置
+
+```yaml
+repos:
+  - github:
+      type: git
+      repo: https://github.com/user/repo
+```
+
+### 多仓库配置
+
+```yaml
+repos:
+  - local:
+      type: local
+      url: ./local-templates
+  - github:
+      type: git
+      repo: https://github.com/user/repo
+  - gitlab:
+      type: gitlab
+      repo: https://gitlab.com/user/repo
 ```
 
 ### 完整配置
 
 ```yaml
-username: my-username
-password: my-password
-token: my-token
-
-proxy:
-  url: http://proxy.example.com:8080
+workspace:
+  name: my-workspace
+  description: 我的工作区
 
 repos:
-  - local:
-      type: local
-      url: /path/to/local/repo
-  
   - github:
       type: git
-      repo: https://github.com/username/repo.git
-      token: ghp_xxxxxxxxxxxxx
-  
-  - gitlab:
-      type: gitlab
-      repo: https://gitlab.com/username/repo.git
-      token: glpat-xxxxxxxxxxxxx
-  
-  - ftp:
-      type: ftp
-      url: ftp://ftp.example.com/path/to/repo
-      username: ftp-user
-      password: ftp-pass
+      repo: https://github.com/user/repo
+      token: ghp_xxxxxxxxxxxx
+  - local:
+      type: local
+      url: ./templates
+
+username: my-user
+token: ghp_xxxxxxxxxxxx
+proxy: http://proxy.example.com:8080
 ```
 
-## 初始化配置
+## 配置优先级
 
-使用 `cocli init` 命令可以交互式创建配置文件：
+配置加载优先级（从高到低）：
+
+1. 环境变量
+2. 项目级配置（`.qclocal`）
+3. 工作区配置（`.qclrc`）
+4. 全局配置（`~/.qclrc`）
+
+## 环境变量覆盖
+
+支持使用环境变量覆盖配置：
 
 ```bash
-cocli init
+export COCLI_USERNAME=my-user
+export COCLI_TOKEN=ghp_xxxxxxxxxxxx
+export COCLI_REPO='[{"github":{"type":"git","repo":"https://github.com/user/repo"}}]'
 ```
 
-## 相关文档
+## 常见问题
 
-- [`.qclocal` 配置](./qclocal)
-- [仓库配置详解](./repos)
-- [初始化命令](/commands/init)
+### Q: 配置文件格式错误怎么办？
+
+A: 检查 YAML 语法，确保缩进正确。
+
+### Q: 如何查看当前配置？
+
+A: 使用命令：
+
+```bash
+cocli config list
+cocli config get repos
+```
+
+### Q: 配置修改后不生效？
+
+A: 检查配置文件位置和优先级。
 
